@@ -17,9 +17,13 @@ from app.handlers.base import start_kb
 
 fill_router = Router()
 
+
 class AuthInfo(StatesGroup):
     user_id = State()
-    craft = State()
+    username = State()
+    target = State()
+    sex = State()
+    sex_target = State()
     name = State()
     age = State()
     city = State()
@@ -29,21 +33,40 @@ class AuthInfo(StatesGroup):
     
 @fill_router.message(StateFilter(None), F.text == "Заполнить анкету")
 async def start_auth(message: Message, state: FSMContext):
-    await state.set_state(AuthInfo.craft)
+    await state.set_state(AuthInfo.target)
     await message.answer("Поехали!", reply_markup=ReplyKeyboardRemove())
-    await message.answer("В какой сфере вы развиваетесь?", reply_markup=get_callback_btns(
-        btns={value: value for value in CRAFTS_SET},
+    await message.answer("Что вы ищите?", reply_markup=get_callback_btns(
+        btns={"Дружба": "Дружба", "Отношения": "Отношения"},
         sizes=(2,)
     ))
     
     
-@fill_router.callback_query(StateFilter(AuthInfo.craft), F.data)
+@fill_router.callback_query(StateFilter(AuthInfo.target), F.data)
 async def get_craft(callback: CallbackQuery, state: FSMContext):
-    await state.update_data(craft=callback.data)
-    await state.set_state(AuthInfo.name)
-    await callback.message.delete()
-    await callback.message.answer("Как вас зовут?")
+    await state.update_data(target=callback.data)
+    await state.set_state(AuthInfo.sex)
+    await callback.message.edit_text("Ваш пол:", reply_markup=get_callback_btns(
+        btns={"Парень": "Парень", "Девушка": "Девушка"},
+        sizes=(2,)
+    ))
     
+    
+@fill_router.callback_query(StateFilter(AuthInfo.sex), F.data)
+async def get_craft(callback: CallbackQuery, state: FSMContext):
+    await state.update_data(sex=callback.data)
+    await state.set_state(AuthInfo.sex_target)
+    await callback.message.edit_text("Кого вы ищите?", reply_markup=get_callback_btns(
+        btns={"Парень": "Парень", "Девушка": "Девушка", "Все равно": "Все равно"},
+        sizes=(2,)
+    ))
+    
+    
+@fill_router.callback_query(StateFilter(AuthInfo.sex_target), F.data)
+async def get_target(callback: CallbackQuery, state: FSMContext):
+    await state.update_data(sex_target=callback.data)
+    await state.set_state(AuthInfo.name)
+    await callback.message.edit_text("Как вас зовут?")
+        
 
 @fill_router.message(StateFilter(AuthInfo.name), F.text)
 async def get_name(message: Message, state: FSMContext):
@@ -56,6 +79,12 @@ async def get_name(message: Message, state: FSMContext):
 async def get_age(message: Message, state: FSMContext):
     if not message.text.isdigit():
         await message.answer("Возраст должен быть числом, повторите ввод")
+        return
+    elif int(message.text) < 14:
+        await message.answer("Возраст должен быть больше 13, повторите ввод")
+        return 
+    elif int(message.text) > 130:
+        await message.answer("Люди столько не живут ;) Возраст должен быть меньше 120, повторите ввод")
         return
     await state.update_data(age=int(message.text))
     await state.set_state(AuthInfo.city)
@@ -86,8 +115,9 @@ async def get_description(message: Message, state: FSMContext, session: AsyncSes
     else:
         await state.update_data(description=message.text)
     await state.update_data(user_id=message.from_user.id)
+    await state.update_data(username=message.from_user.username)
     data = await state.get_data()
     await add_user(session, data)
     await message.answer("Ваша анкета успешно заполнена", reply_markup=start_kb)
-    await message.answer_photo(data["photo"], caption=f'{data["name"]}, {data["age"]}\nГород: {data["city"]}\nСфера: {data["craft"]}\n\n{data["description"]}')
+    await message.answer_photo(data["photo"], caption=f'{data["name"]}, {data["age"]}\nГород: {data["city"]}\n\n{data["description"]}')
     await state.clear()

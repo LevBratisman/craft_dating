@@ -29,7 +29,6 @@ async def get_all_users_by_craft(session: AsyncSession, craft: str):
     result = await session.execute(query)
     return result.scalars().all()
 
-
 # Получение id пользователя по user_id
 async def get_user_by_user_id(session: AsyncSession, user_id: int):
     query = select(User).where(User.user_id == user_id)
@@ -37,7 +36,23 @@ async def get_user_by_user_id(session: AsyncSession, user_id: int):
     return result.scalars().first()
 
 
-async def del_user_by_user_id(session: AsyncSession, user_id: int):
+async def get_users_by_target(session: AsyncSession, target: str, sex_target: str, user_id: int):
+    if sex_target == "Все равно":
+        query = select(User).where(User.target == target, User.user_id != user_id)
+    else:
+        query = select(User).where(User.target == target, User.sex == sex_target, User.user_id != user_id)
+    result = await session.execute(query)
+    return result.scalars().all()
+
+
+
+async def add_liked_users(session: AsyncSession, user_id: int, liked_users: str):
+    query = update(User).where(User.user_id == user_id).values(liked_users=liked_users)
+    await session.execute(query)
+    await session.commit()
+
+
+async def delete_user(session: AsyncSession, user_id: int):
     query = delete(User).where(User.user_id == user_id)
     await session.execute(query)
     await session.commit()
