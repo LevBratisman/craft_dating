@@ -9,6 +9,7 @@ from handlers.base import base_router
 from handlers.fiil import fill_router
 from handlers.search import search_router
 from handlers.profile import profile_router
+from handlers.search_settings import search_settings_router
 
 
 from database.init import create_db, drop_db
@@ -29,6 +30,7 @@ dp = Dispatcher()
 # Include Routers
 dp.include_router(fill_router)
 dp.include_router(profile_router)
+dp.include_router(search_settings_router)
 dp.include_router(search_router)
 dp.include_router(base_router)
 

@@ -56,6 +56,17 @@ data = [
     },
     {
         "user_id": 6,
+        "target": "Дружба",
+        "sex": "Девушка",
+        "sex_target": "Все равно",
+        "name": "Елена",
+        "age": 20,
+        "city": "Новосибирск",
+        "photo": "AgACAgIAAxkBAAINJmY19EYAAahsjWacvZCm5ploIW2UwQACOdgxGw_SsEkYQf-kskREFQEAAwIAA3kAAzQE",
+        "description": "Люблю путешествия и новые знакомства"
+    },
+    {
+        "user_id": 7,
         "target": "Отношения",
         "sex": "Девушка",
         "sex_target": "Парень",
@@ -66,7 +77,7 @@ data = [
         "description": "В поиске настоящего чувства"
     },
     {
-        "user_id": 7,
+        "user_id": 8,
         "target": "Дружба",
         "sex": "Парень",
         "sex_target": "Парень",
@@ -77,7 +88,7 @@ data = [
         "description": "Ищу друга для спорта и активного отдыха"
     },
     {
-        "user_id": 8,
+        "user_id": 9,
         "target": "Отношения",
         "sex": "Парень",
         "sex_target": "Все равно",
@@ -88,7 +99,7 @@ data = [
         "description": "Открыт к новым знакомствам"
     },
     {
-        "user_id": 9,
+        "user_id": 10,
         "target": "Дружба",
         "sex": "Девушка",
         "sex_target": "Девушка",
@@ -99,7 +110,7 @@ data = [
         "description": "Хочу найти подругу для совместных прогулок"
     },
     {
-        "user_id": 10,
+        "user_id": 11,
         "target": "Отношения",
         "sex": "Парень",
         "sex_target": "Девушка",
@@ -110,7 +121,7 @@ data = [
         "description": "Ищу серьезные отношения, устал от одиночества"
     },
     {
-        "user_id": 11,
+        "user_id": 12,
         "target": "Дружба",
         "sex": "Девушка",
         "sex_target": "Парень",
@@ -121,7 +132,7 @@ data = [
         "description": "Ищу интересного собеседника и друга"
     },
     {
-        "user_id": 12,
+        "user_id": 13,
         "target": "Отношения",
         "sex": "Девушка",
         "sex_target": "Все равно",
@@ -132,7 +143,7 @@ data = [
         "description": "Готова к серьезным отношениям, важен внутренний мир"
     },
     {
-        "user_id": 13,
+        "user_id": 14,
         "target": "Дружба",
         "sex": "Парень",
         "sex_target": "Все равно",
@@ -143,4 +154,34 @@ data = [
         "description": "Ищу друзей для совместных походов в горы"
     }
 ]
+
+
+data_user = []
+data_filter = []
+
+for item in data:
+    user_dict = {
+        "user_id": item["user_id"],
+        "sex": item["sex"],
+        "name": item["name"],
+        "age": item["age"],
+        "city": item["city"],
+        "photo": item["photo"],
+        "description": item["description"]
+    }
+    
+    filter_dict = {
+        "user_id": item["user_id"],
+        "target": item["target"],
+        "sex_target": item["sex_target"],
+        "age_from": item["age"] - 5,
+        "age_to": item["age"] + 5,
+        "city": item["city"]
+    }
+    
+    data_user.append(user_dict)
+    data_filter.append(filter_dict)
+
+# Теперь data_user и data_filter содержат нужные данные
+
 
