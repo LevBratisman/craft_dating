@@ -6,7 +6,7 @@ from aiogram import Dispatcher, Bot
 from config import settings
 
 from handlers.base import base_router
-from handlers.fiil import fill_router
+from handlers.fill import fill_router
 from handlers.search import search_router
 from handlers.profile import profile_router
 from handlers.search_settings import search_settings_router
@@ -42,11 +42,11 @@ async def on_startup(bot):
     load_cities()
     logging.info("Starting bot")
     
-    # is_dropped = False
-    # if is_dropped:
-    #     await drop_db()
+    is_dropped = False
+    if is_dropped:
+        await drop_db()
         
-    # await create_db()
+    await create_db()
 
 
 async def on_shutdown(bot):

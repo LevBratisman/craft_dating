@@ -5,12 +5,13 @@ from aiogram.fsm.context import FSMContext
 from aiogram.filters import StateFilter, CommandStart
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.database.dao import get_user_by_user_id, update_user_description, update_user_photo
+from app.database.dao.user import get_user_by_user_id, update_user_description, update_user_photo
+from app.database.dao.uni import get_uni_by_id
 
 from app.keyboards.reply import get_keyboard
 from app.keyboards.inline import get_callback_btns
 from app.handlers.search import start_search
-from app.handlers.fiil import start_auth
+from app.handlers.fill import start_auth
 from app.handlers.base import start_kb, profile_kb, my_profile
 
 from tests.test_data import data
@@ -48,23 +49,24 @@ async def start_search(message: Message, state: FSMContext):
 async def desc_change(message: Message, state: FSMContext):
     await state.set_state(Description.description)
     await state.update_data(user_id=int(message.from_user.id))
-    await message.answer("Расскажите о себе", reply_markup=get_keyboard("Пропустить"))
+    await message.answer("Расскажите о себе", reply_markup=get_keyboard("Сбросить"))
     
     
 @profile_router.message(StateFilter(Description.description), F.text)
 async def get_description(message: Message, state: FSMContext, session: AsyncSession):
-    if message.text == "Пропустить":
+    if message.text == "Сбросить":
         await state.update_data(description='')
     else:
         await state.update_data(description=message.text)
         
     data = await state.get_data()
     user = await get_user_by_user_id(session, message.from_user.id)
+    uni = await get_uni_by_id(session, user.uni_id)
     await state.set_state(Description.confirmation)
     
     await message.answer("Ваша анкета:", reply_markup=ReplyKeyboardRemove())
         
-    await message.answer_photo(user.photo, caption=f'{user.name}, {user.age}\nГород: {user.city}\n{data["description"]}', reply_markup=confirmation_kb)
+    await message.answer_photo(user.photo, caption=f'🎴{user.name}, {user.age}\n<b>🏛{uni.name}</b>\n{data["description"]}', reply_markup=confirmation_kb)
         
     
 @profile_router.callback_query(StateFilter(Description.confirmation), F.data)
@@ -76,9 +78,10 @@ async def desc_confirmation(callback: CallbackQuery, state: FSMContext, session:
         await update_user_description(session, data["user_id"], data["description"])
         
     user = await get_user_by_user_id(session, data["user_id"])
+    uni = await get_uni_by_id(session, user.uni_id)
     await state.clear()
     await callback.message.delete()
-    await callback.message.answer_photo(photo=user.photo, caption=f'{user.name}, {user.age}\nГород: {user.city}\n{user.description}\n\n🔄 - Заполнить анкету заново\n📝 - Изменить описание\n🖼 - Изменить фото', reply_markup=profile_kb)
+    await callback.message.answer_photo(photo=user.photo, caption=f'🎴{user.name}, {user.age}\n<b>🏛{uni.name}</b>\n{user.description}\n\n🔄 - Заполнить анкету заново\n📝 - Изменить описание\n🖼 - Изменить фото', reply_markup=profile_kb)
     
     
 # -------------------------------- PHOTO FSM -----------------------------
@@ -87,6 +90,7 @@ async def desc_confirmation(callback: CallbackQuery, state: FSMContext, session:
 @profile_router.message(F.text == "🖼")
 async def photo_change(message: Message, state: FSMContext):
     await state.set_state(Photo.photo)
+    await state.update_data(user_id=int(message.from_user.id))
     await message.answer("Приложите фото", reply_markup=ReplyKeyboardRemove())
     
     
@@ -98,9 +102,7 @@ async def get_photo(message: Message, state: FSMContext, session: AsyncSession):
     user = await get_user_by_user_id(session, message.from_user.id)
     await state.set_state(Photo.confirmation)
     
-    await message.answer("Ваша анкета:", reply_markup=ReplyKeyboardRemove())
-        
-    await message.answer_photo(data["photo"], caption=f'{user.name}, {user.age}\nГород: {user.city}\n{user.description}', reply_markup=confirmation_kb)
+    await message.answer("Подтвердить изменения?", reply_markup=confirmation_kb)
         
     
 @profile_router.callback_query(StateFilter(Photo.confirmation), F.data)
@@ -111,9 +113,10 @@ async def photo_confirmation(callback: CallbackQuery, state: FSMContext, session
         await update_user_photo(session, data["user_id"], data["photo"])
         
     user = await get_user_by_user_id(session, data["user_id"])
+    uni = await get_uni_by_id(session, user.uni_id)
     await state.clear()
     await callback.message.delete()
-    await callback.message.answer_photo(photo=user.photo, caption=f'{user.name}, {user.age}\nГород: {user.city}\n{user.description}\n\n🔄 - Заполнить анкету заново\n📝 - Изменить описание\n🖼 - Изменить фото', reply_markup=profile_kb)
+    await callback.message.answer_photo(photo=user.photo, caption=f'🎴{user.name}, {user.age}\n<b>🏛{uni.name}</b>\n{user.description}\n\n🔄 - Заполнить анкету заново\n📝 - Изменить описание\n🖼 - Изменить фото', reply_markup=profile_kb)
 
 
 # -------------------------------------------------------------

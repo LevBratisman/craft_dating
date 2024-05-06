@@ -5,10 +5,13 @@ from aiogram.fsm.context import FSMContext
 from aiogram.filters import StateFilter, CommandStart
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.database.dao import get_user_by_user_id, delete_user, add_user, add_filter
+from app.database.dao.user import get_user_by_user_id, delete_user, add_user
+from app.database.dao.filter import add_filter
+from app.database.dao.uni import add_uni, get_uni_by_id
 
 from app.keyboards.reply import get_keyboard
 
+from app.common.uni_list import uni_data
 from tests.test_data import data_user, data_filter
 
 
@@ -45,6 +48,9 @@ async def start(message: Message, state: FSMContext, session: AsyncSession):
     await state.clear()
     await delete_user(session, message.from_user.id)
     await message.answer("Wellcome", reply_markup=start_kb)
+    
+    for uni in uni_data:
+        await add_uni(session, uni)
     for test_person in data_user:
         await add_user(session, test_person)
     for test_filter in data_filter:
@@ -55,7 +61,8 @@ async def start(message: Message, state: FSMContext, session: AsyncSession):
 async def my_profile(message: Message, session: AsyncSession):
     user = await get_user_by_user_id(session, message.from_user.id)
     if user:
-        await message.answer_photo(user.photo, caption=f'{user.name}, {user.age}\nГород: {user.city}\n{user.description}\n\n🔄 - Заполнить анкету заново\n📝 - Изменить описание\n🖼 - Изменить фото', reply_markup=profile_kb)
+        uni = await get_uni_by_id(session, user.uni_id)
+        await message.answer_photo(user.photo, caption=f'🎴{user.name}, {user.age}\n🏛<b>{uni.name}</b>\n\n{user.description}\n\n🔄 - Заполнить анкету заново\n📝 - Изменить описание\n🖼 - Изменить фото', reply_markup=profile_kb)
     else:
         await message.answer("Вы ещё не заполнили анкету", reply_markup=register_kb)
         

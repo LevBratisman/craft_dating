@@ -4,15 +4,13 @@ from sqlalchemy import DateTime, func
 
 from app.config import settings
 
+from app.database.models import Base, Uni, User, Like, Filter
+
 
 engine = create_async_engine(settings.DATABASE_URL)
 
 async_session_maker = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
-# Base model
-class Base(DeclarativeBase):
-    created: Mapped[DateTime] = mapped_column(DateTime, default=func.now())
-    updated: Mapped[DateTime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())
 
 
 # Create DB
