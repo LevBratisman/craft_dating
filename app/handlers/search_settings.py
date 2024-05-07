@@ -14,7 +14,6 @@ from app.database.dao.uni import get_uni_by_id, get_uni_by_name
 from app.database.dao.user import get_full_user_info
 
 
-from app.handlers.base import start_kb
 from app.handlers.fill import pop_uni_kb
 from app.database.dao.user import get_user_by_user_id
 
@@ -56,7 +55,7 @@ search_settings_kb = get_keyboard(
     
     
     
-@search_settings_router.message(F.text == "Параметры поиска")
+@search_settings_router.message(F.text == "⚙️Параметры поиска")
 async def search_settings_menu(message: Message, session: AsyncSession):
     
     user_info = await get_full_user_info(session, message.from_user.id)
@@ -75,10 +74,10 @@ async def target_settings(message: Message, state: FSMContext):
     await state.set_state(TargetSettings.target)
     await state.update_data(user_id=int(message.from_user.id))
     await message.answer_sticker("CAACAgIAAxkBAAISDGY5Jbyq2OLMjQRrwS9QSRKQER6QAAKBAQACK15TC14KbD5sAAF4tDUE", reply_markup=ReplyKeyboardRemove())
-    await message.answer("Выберите цель", reply_markup=get_callback_btns(
-        btns={"Дружба": "Дружба", "Отношения": "Отношения"},
-        sizes=(2,)
-    ))
+    await message.answer("Что вы ищите?", reply_markup=get_callback_btns(
+            btns={"Дружбу": "Дружба", "Отношения": "Отношения", "Как пойдет": "Как пойдет"},
+            sizes=(2, 1)
+        ))
     
 
 @search_settings_router.callback_query(StateFilter(TargetSettings.target), F.data)

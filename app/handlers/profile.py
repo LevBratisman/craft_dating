@@ -5,14 +5,14 @@ from aiogram.fsm.context import FSMContext
 from aiogram.filters import StateFilter, CommandStart
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.database.dao.user import get_user_by_user_id, update_user_description, update_user_photo
+from app.database.dao.user import get_user_by_user_id, update_user_description, update_user_photo, get_full_user_info
 from app.database.dao.uni import get_uni_by_id
 
 from app.keyboards.reply import get_keyboard
 from app.keyboards.inline import get_callback_btns
 from app.handlers.search import start_search
 from app.handlers.fill import start_auth
-from app.handlers.base import start_kb, profile_kb, my_profile
+from app.handlers.base import profile_kb, my_profile
 
 from tests.test_data import data
 
@@ -60,13 +60,18 @@ async def get_description(message: Message, state: FSMContext, session: AsyncSes
         await state.update_data(description=message.text)
         
     data = await state.get_data()
-    user = await get_user_by_user_id(session, message.from_user.id)
+    user = await get_full_user_info(session, message.from_user.id)
     uni = await get_uni_by_id(session, user.uni_id)
     await state.set_state(Description.confirmation)
     
     await message.answer("Ваша анкета:", reply_markup=ReplyKeyboardRemove())
         
-    await message.answer_photo(user.photo, caption=f'🎴{user.name}, {user.age}\n<b>🏛{uni.name}</b>\n{data["description"]}', reply_markup=confirmation_kb)
+    await message.answer_photo(user.photo, caption=f'🎴{user["name"]}, {user["age"]}, {user["uni_city"]}\n<b>🏛{user["uni_name"]}</b>\n🔍<b>{user["target"]}</b>\n\n{data["description"]}', reply_markup=confirmation_kb)
+    
+    
+@profile_router.message(StateFilter(Description.description))
+async def wrong_description(message: Message, state: FSMContext, session: AsyncSession):
+    await message.answer("Неверный формат! Введите текст")
         
     
 @profile_router.callback_query(StateFilter(Description.confirmation), F.data)
@@ -77,11 +82,10 @@ async def desc_confirmation(callback: CallbackQuery, state: FSMContext, session:
     if callback.data == "Подтвердить":
         await update_user_description(session, data["user_id"], data["description"])
         
-    user = await get_user_by_user_id(session, data["user_id"])
-    uni = await get_uni_by_id(session, user.uni_id)
+    user = await get_full_user_info(session, data["user_id"])
     await state.clear()
     await callback.message.delete()
-    await callback.message.answer_photo(photo=user.photo, caption=f'🎴{user.name}, {user.age}\n<b>🏛{uni.name}</b>\n{user.description}\n\n🔄 - Заполнить анкету заново\n📝 - Изменить описание\n🖼 - Изменить фото', reply_markup=profile_kb)
+    await callback.message.answer_photo(photo=user.photo, caption=f'🎴{user["name"]}, {user["age"]}, {user["uni_city"]}\n<b>🏛{user["uni_name"]}</b>\n🔍<b>{user["target"]}</b>\n\n{user["description"]}\n\n🔄 - Заполнить анкету заново\n📝 - Изменить описание\n🖼 - Изменить фото', reply_markup=profile_kb)
     
     
 # -------------------------------- PHOTO FSM -----------------------------
@@ -103,6 +107,11 @@ async def get_photo(message: Message, state: FSMContext, session: AsyncSession):
     await state.set_state(Photo.confirmation)
     
     await message.answer("Подтвердить изменения?", reply_markup=confirmation_kb)
+    
+    
+@profile_router.message(StateFilter(Photo.photo))
+async def wrong_photo(message: Message, state: FSMContext):
+    await message.answer("Неверный формат! Приложите фото")
         
     
 @profile_router.callback_query(StateFilter(Photo.confirmation), F.data)
@@ -112,16 +121,12 @@ async def photo_confirmation(callback: CallbackQuery, state: FSMContext, session
     if callback.data == "Подтвердить":
         await update_user_photo(session, data["user_id"], data["photo"])
         
-    user = await get_user_by_user_id(session, data["user_id"])
-    uni = await get_uni_by_id(session, user.uni_id)
+    user = await get_full_user_info(session, data["user_id"])
     await state.clear()
     await callback.message.delete()
-    await callback.message.answer_photo(photo=user.photo, caption=f'🎴{user.name}, {user.age}\n<b>🏛{uni.name}</b>\n{user.description}\n\n🔄 - Заполнить анкету заново\n📝 - Изменить описание\n🖼 - Изменить фото', reply_markup=profile_kb)
+    await callback.message.answer_photo(photo=user.photo, caption=f'🎴{user["name"]}, {user["age"]}, {user["uni_city"]}\n<b>🏛{user["uni_name"]}</b>\n🔍<b>{user["target"]}</b>\n\n{user["description"]}\n\n🔄 - Заполнить анкету заново\n📝 - Изменить описание\n🖼 - Изменить фото', reply_markup=profile_kb)
 
 
 # -------------------------------------------------------------
 
-@profile_router.message(F.text == "Назад")
-async def back(message: Message, state: FSMContext):
-    await message.answer("Меню", reply_markup=start_kb)
 

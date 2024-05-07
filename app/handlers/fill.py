@@ -14,7 +14,7 @@ from app.database.dao.filter import add_filter
 from app.database.dao.like import add_like_stats
 from app.database.dao.uni import get_uni_by_name, get_uni_by_id
 
-from app.handlers.base import start_kb
+from app.keyboards.reply import get_menu_keyboard
 
 
 fill_router = Router()
@@ -23,12 +23,9 @@ fill_router = Router()
 pop_uni_kb = get_callback_btns(
     btns={
         "Московский политех": "Московский политех",
-        "МГУ": "МГУ",
-        "РУДН": "РУДН",
-        "МФТИ": "МФТИ",
         "Здесь нет моего ВУЗа": "none"
     },
-    sizes=(2, 2, 1)
+    sizes=(1, )
 )
 
 
@@ -66,8 +63,8 @@ async def get_uni(callback: CallbackQuery, state: FSMContext, session: AsyncSess
         await state.update_data(uni=uni.id)
         await state.set_state(AuthInfo.target)
         await callback.message.edit_text("Что вы ищите?", reply_markup=get_callback_btns(
-            btns={"Дружбу": "Дружба", "Отношения": "Отношения"},
-            sizes=(2,)
+            btns={"Дружбу": "Дружба", "Отношения": "Отношения", "Как пойдет": "Как пойдет"},
+            sizes=(2, 1)
         ))
         
     
@@ -179,6 +176,13 @@ async def get_description(message: Message, state: FSMContext, session: AsyncSes
     
     uni = await get_uni_by_id(session, data["uni"])
     
-    await message.answer("Ваша анкета успешно заполнена", reply_markup=start_kb)
-    await message.answer_photo(data["photo"], caption=f'🎴{data["name"]}, {data["age"]}\n🏛<b>{uni.name}</b>\n\n{data["description"]}')
+    await message.answer("Ваша анкета успешно заполнена", reply_markup=await get_menu_keyboard("🔍Искать людей", 
+                                                                                               "💕Кто меня лайкнул?", 
+                                                                                               "🙎‍♂️Мой профиль", 
+                                                                                               "⚙️Параметры поиска",
+                                                                                               placeholder="Выберите действие", 
+                                                                                               sizes=(1, ), 
+                                                                                               user_id=message.from_user.id
+                                                                                               ))
+    await message.answer_photo(data["photo"], caption=f'🎴{data["name"]}, {data["age"]}\n🏛<b>{uni.name}</b>\n🔍<b>{data["target"]}</b>\n\n{data["description"]}')
     await state.clear()

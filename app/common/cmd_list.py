@@ -1,6 +1,10 @@
-from cities import cities
+from aiogram.types import BotCommand
 
-with open("bot/app/common/city_list.txt", "w") as f:
-    for city in cities:
-        print(city['name'])
-        f.write(f"{city['name']}\n")
+private = [
+    BotCommand(command="menu", description="Перейти в меню"),
+    BotCommand(command="search", description="Поиск анкет"),
+    BotCommand(command="help", description="Инструкция"),
+    BotCommand(command="feedback", description="Оставить отзыв"),
+    BotCommand(command="contacts", description="Контакты"),
+]
+
