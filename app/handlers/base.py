@@ -104,7 +104,7 @@ async def back(message: Message):
 
 @base_router.message(F.text)
 async def not_handled(message: Message):
-    await message.answer("I don't know this command")
+    await message.answer("Я не понимаю эту команду")
 
 
 @base_router.message(F.photo)

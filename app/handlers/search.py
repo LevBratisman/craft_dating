@@ -1,11 +1,9 @@
 from aiogram import F, Router, Bot
 from aiogram.types import Message
-from aiogram.fsm.state import State, StatesGroup
-from aiogram.fsm.context import FSMContext
 from aiogram.filters import StateFilter
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.database.dao.user import get_user_by_user_id, set_iterator, get_iterator, get_like_iterator, set_like_iterator, get_full_user_info
+from app.database.dao.user import set_iterator, get_iterator, get_full_user_info
 from app.database.dao.filter import get_filter
 from app.database.dao.like import add_liked_user, get_like
 
@@ -89,6 +87,7 @@ async def next_user(message: Message, session: AsyncSession, bot: Bot):
     
     user_info = await get_full_user_info(session, message.from_user.id)
     
+    
     if user_info:
         target_users = await search_users(session, user_info)
     
@@ -105,8 +104,7 @@ async def next_user(message: Message, session: AsyncSession, bot: Bot):
     try:
         if message.text == "❤️":
             
-            target_user = target_users[iter]
-            
+            target_user = target_users[iter]            
             
             # is Bot checking
             if target_user.user_id < 10_000:

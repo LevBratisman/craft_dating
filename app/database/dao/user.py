@@ -1,3 +1,4 @@
+import datetime
 from sqlalchemy import and_, delete, or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -26,6 +27,18 @@ async def add_user(
 # Получение всех пользователей
 async def get_all_users(session: AsyncSession):
     query = select(User)
+    result = await session.execute(query)
+    return result.scalars().all()
+
+
+async def get_all_users_id(session: AsyncSession):
+    query = select(User.user_id)
+    result = await session.execute(query)
+    return result.scalars().all()
+
+
+async def get_count_users_last_days(session: AsyncSession, days: int):
+    query = select(User.id).where(User.created >= (datetime.datetime.now() - datetime.timedelta(days=days)))
     result = await session.execute(query)
     return result.scalars().all()
 

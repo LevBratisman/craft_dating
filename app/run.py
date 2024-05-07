@@ -12,6 +12,7 @@ from handlers.profile import profile_router
 from handlers.search_settings import search_settings_router
 from handlers.commands import cmd_router
 from handlers.like import like_router
+from handlers.admin.admin import admin_router
 
 from common.cmd_list import private
 
@@ -34,6 +35,7 @@ dp = Dispatcher()
 # Include Routers
 dp.include_router(cmd_router)
 dp.include_router(fill_router)
+dp.include_router(admin_router)
 dp.include_router(profile_router)
 dp.include_router(search_settings_router)
 dp.include_router(search_router)

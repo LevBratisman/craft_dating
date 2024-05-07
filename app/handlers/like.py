@@ -64,7 +64,6 @@ async def like(message: Message, session: AsyncSession, bot: Bot):
     user_like_stats = await get_like(session, message.from_user.id)
     
     liked_users_iter = user["like_iterator"]
-    print(liked_users_iter)
     
     liked_users = user_like_stats.liked_users_id.split(",")
     try:
