@@ -15,7 +15,7 @@ from app.keyboards.reply import get_keyboard, get_menu_keyboard
 from app.handlers.fill import start_auth
 
 from app.common.uni_list import uni_data
-from tests.test_data import data_user, data_filter
+# from tests.test_data import data_user, data_filter
 
 
 base_router = Router()
@@ -53,10 +53,10 @@ async def start(message: Message, state: FSMContext, session: AsyncSession):
     
     for uni in uni_data:
         await add_uni(session, uni)
-    for test_person in data_user:
-        await add_user(session, test_person)
-    for test_filter in data_filter:
-        await add_filter(session, test_filter)
+    # for test_person in data_user:
+    #     await add_user(session, test_person)
+    # for test_filter in data_filter:
+    #     await add_filter(session, test_filter)
         
         
         

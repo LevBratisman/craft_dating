@@ -16,6 +16,7 @@ from handlers.search_settings import search_settings_router
 from handlers.commands import cmd_router
 from handlers.like import like_router
 from handlers.admin.admin import admin_router
+from handlers.admin.addbot import adbot_router
 
 from common.cmd_list import private
 
@@ -61,6 +62,7 @@ dp = Dispatcher()
 dp.include_router(cmd_router)
 dp.include_router(fill_router)
 dp.include_router(admin_router)
+dp.include_router(adbot_router)
 dp.include_router(profile_router)
 dp.include_router(search_settings_router)
 dp.include_router(search_router)
@@ -82,7 +84,7 @@ if __name__ == "__main__":
         # asyncio.run(main())
     except KeyboardInterrupt:
         print("error")
-        #https://api.telegram.org/bot6727500986:AAE5xqYxeyOwV7jNPOJDPzT1_l4Dd4bOjY4/setWebhook?url=https://unidate-bot.ru
+        #https://api.telegram.org/bot6727500986:AAE5xqYxeyOwV7jNPOJDPzT1_l4Dd4bOjY4/setWebhook?url=https://ddaa-2a00-1fa0-27e-a2e9-97a-a315-fc9-4e06.ngrok-free.app
         #https://api.telegram.org/bot6727500986:AAE5xqYxeyOwV7jNPOJDPzT1_l4Dd4bOjY4/getWebhookInfo
         #/root/.cache/pypoetry/virtualenvs/bot-3nGdubw0-py3.11/bin/activate /home/bot/app/run.py
         

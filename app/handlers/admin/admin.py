@@ -13,7 +13,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 admin_kb = get_keyboard(
     "🔉Сделать рассылку",
     "📊Статистика",
+    "Добавить бота",
     "⬅️Назад к меню",
+    sizes=(2, 1, 1, )
 )
 
 statistic_kb = get_keyboard(
