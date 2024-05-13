@@ -22,7 +22,6 @@ from common.cmd_list import private
 
 from database.init import create_db, drop_db
 
-from common.cities import load_cities
 from middlewares.db import DataBaseSession
 from database.init import async_session_maker
 
@@ -31,11 +30,16 @@ from database.init import async_session_maker
 
 @asynccontextmanager
 async def lifespan(app):
-    dp.startup.register(on_startup)
+    logging.info("Starting bot")
+    
+    is_dropped = False
+    if is_dropped:
+        await drop_db()
+        
+    await create_db()
     dp.shutdown.register(on_shutdown)
     await bot.set_my_commands(private)
     dp.update.middleware(DataBaseSession(session_pool=async_session_maker))
-    # Start the bot
     await bot.delete_webhook(drop_pending_updates=True)
     yield
     
@@ -66,17 +70,7 @@ dp.include_router(base_router)
 
 
 
-# startup and shutdown handlers
-async def on_startup(bot):
-    logging.info("Starting bot")
-    
-    is_dropped = False
-    if is_dropped:
-        await drop_db()
-        
-    await create_db()
-
-
+# shutdown handlers
 async def on_shutdown(bot):
     logging.info("Shutting down bot")
     
@@ -88,5 +82,10 @@ if __name__ == "__main__":
         # asyncio.run(main())
     except KeyboardInterrupt:
         print("error")
-        #https://api.telegram.org/bot6727500986:AAE5xqYxeyOwV7jNPOJDPzT1_l4Dd4bOjY4/setWebhook?url=https://630b-2a00-1fa0-4a3-a6ff-55d1-c84-6212-3e50.ngrok-free.app
+        #https://api.telegram.org/bot6727500986:AAE5xqYxeyOwV7jNPOJDPzT1_l4Dd4bOjY4/setWebhook?url=https://unidate-bot.ru
         #https://api.telegram.org/bot6727500986:AAE5xqYxeyOwV7jNPOJDPzT1_l4Dd4bOjY4/getWebhookInfo
+        #/root/.cache/pypoetry/virtualenvs/bot-3nGdubw0-py3.11/bin/activate /home/bot/app/run.py
+        
+        #https://api.telegram.org/bot7134012948:AAHBWs7-7bF074pmlp78K-OMob0UgynM2Vc/setWebhook?url=https://unidate-bot.ru
+        #https://api.telegram.org/bot7134012948:AAHBWs7-7bF074pmlp78K-OMob0UgynM2Vc/getWebhookInfo
+        # 7134012948:AAHBWs7-7bF074pmlp78K-OMob0UgynM2Vc

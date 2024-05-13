@@ -7,7 +7,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.keyboards.inline import get_callback_btns
 from app.keyboards.reply import get_keyboard
-from app.common.cities import CITIES_SET
 
 from app.database.dao.filter import get_filter, update_target, update_city, update_sex_target, update_uni
 from app.database.dao.uni import get_uni_by_id, get_uni_by_name

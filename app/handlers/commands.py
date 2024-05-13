@@ -35,7 +35,7 @@ async def back(message: Message, state: FSMContext):
 @cmd_router.message(Command("feedback"))
 async def cmd_feedback(message: Message, state: FSMContext):
     await state.clear()
-    await message.answer("Вы можете отправить отзыв в наш чат", reply_markup=await get_menu_keyboard("🔍Искать людей", 
+    await message.answer("Вы можете отправить отзыв в специальный чат @unidatefeed", reply_markup=await get_menu_keyboard("🔍Искать людей", 
                                                                                                "💕Кто меня лайкнул?", 
                                                                                                "🙎‍♂️Мой профиль", 
                                                                                                "⚙️Параметры поиска",
