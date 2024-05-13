@@ -1,20 +1,15 @@
 from aiogram import F, Router, Bot
 from aiogram.types import Message
-from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.context import FSMContext
-from aiogram.filters import StateFilter, CommandStart
 from sqlalchemy.ext.asyncio import AsyncSession
+import asyncio
 
-from app.database.dao.user import get_user_by_user_id, delete_user, add_user, get_full_user_info
-from app.database.dao.filter import add_filter
-from app.database.dao.uni import add_uni, get_uni_by_id
+from app.database.dao.user import get_full_user_info
 
 from app.keyboards.reply import get_keyboard, get_menu_keyboard
 
-from app.common.uni_list import uni_data
 from app.handlers.search import start_search
 from app.services.search import search_users
-from tests.test_data import data_user, data_filter
 
 from app.database.dao.like import get_like, add_liked_user
 from app.database.dao.user import get_like_iterator, set_like_iterator, get_iterator, set_iterator
@@ -109,17 +104,6 @@ async def like(message: Message, session: AsyncSession, bot: Bot):
 async def continue_search(message: Message, session: AsyncSession, state: FSMContext):
     
     await state.clear()
-    
-    iter = await get_iterator(session, message.from_user.id)
-    
-    user_info = await get_full_user_info(session, message.from_user.id)
-    if user_info:
-        target_users = await search_users(session, user_info)
-        
-    if iter == 0:
-        await set_iterator(session, message.from_user.id, len(target_users) - 1)
-    else:
-        await set_iterator(session, message.from_user.id, iter - 1)
         
     if message.text == "Меню":
         await message.answer("Вы вернулись в главное меню!", reply_markup=await get_menu_keyboard("🔍Искать людей", 
@@ -130,4 +114,19 @@ async def continue_search(message: Message, session: AsyncSession, state: FSMCon
                                                                                                sizes=(1, ), 
                                                                                                user_id=message.from_user.id))
     else:
+        iter = await get_iterator(session, message.from_user.id)
+    
+        user_info = await get_full_user_info(session, message.from_user.id)
+        if user_info:
+            target_users = await search_users(session, user_info)
+            
+        if iter == 0:
+            await set_iterator(session, message.from_user.id, len(target_users) - 1)
+        else:
+            await set_iterator(session, message.from_user.id, iter - 1)
+            
         await start_search(message, session)
+        await asyncio.shield(session.close())
+
+# Помоги пожалуйста! Мне необходимо загрузить Чат-бота(написанного на aiogram3) на VPS-сервер. Детали - используется webhook
+# Webhook адрес API на FastAPI, которое передает обновления от телеграма локально в бота. Как мне необходимо настроить сервер и какие шаги я должен предпринять?

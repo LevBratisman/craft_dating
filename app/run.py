@@ -1,7 +1,10 @@
 import asyncio
+from contextlib import asynccontextmanager
 import logging
 from aiogram import Dispatcher, Bot
-
+from aiogram.types import Update
+from fastapi import FastAPI, Request, Response
+import uvicorn
 
 from config import settings
 
@@ -26,6 +29,24 @@ from database.init import async_session_maker
 #########################################################
 #----------------------run.py---------------------------#
 
+@asynccontextmanager
+async def lifespan(app):
+    dp.startup.register(on_startup)
+    dp.shutdown.register(on_shutdown)
+    await bot.set_my_commands(private)
+    dp.update.middleware(DataBaseSession(session_pool=async_session_maker))
+    # Start the bot
+    await bot.delete_webhook(drop_pending_updates=True)
+    yield
+    
+
+app = FastAPI(lifespan=lifespan)
+    
+
+@app.api_route("/", methods=["GET", "POST"])
+async def webhook(update: dict):
+    telegram_update = Update(**update)
+    await dp.feed_update(bot=bot, update=telegram_update)
 
 # Initialize Bot and Dispatcher
 bot = Bot(token=settings.BOT_TOKEN, parse_mode="HTML")
@@ -58,22 +79,14 @@ async def on_startup(bot):
 
 async def on_shutdown(bot):
     logging.info("Shutting down bot")
-
-
-# main function
-async def main():
-    dp.startup.register(on_startup)
-    dp.shutdown.register(on_shutdown)
-    await bot.set_my_commands(private)
-    dp.update.middleware(DataBaseSession(session_pool=async_session_maker))
-    # Start the bot
-    await bot.delete_webhook(drop_pending_updates=True)
-    await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
     
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     try:
-        asyncio.run(main())
+        uvicorn.run(app, host="127.0.0.1", port=5000)
+        # asyncio.run(main())
     except KeyboardInterrupt:
         print("error")
+        #https://api.telegram.org/bot6727500986:AAE5xqYxeyOwV7jNPOJDPzT1_l4Dd4bOjY4/setWebhook?url=https://630b-2a00-1fa0-4a3-a6ff-55d1-c84-6212-3e50.ngrok-free.app
+        #https://api.telegram.org/bot6727500986:AAE5xqYxeyOwV7jNPOJDPzT1_l4Dd4bOjY4/getWebhookInfo

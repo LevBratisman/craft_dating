@@ -2,6 +2,7 @@ from aiogram import F, Router, Bot
 from aiogram.types import Message
 from aiogram.filters import StateFilter
 from sqlalchemy.ext.asyncio import AsyncSession
+import asyncio
 
 from app.database.dao.user import set_iterator, get_iterator, get_full_user_info
 from app.database.dao.filter import get_filter
@@ -66,6 +67,9 @@ async def start_search(message: Message, session: AsyncSession):
     else:
         await message.answer("Вы ещё не заполнили анкету", reply_markup=register_kb)
         
+    await asyncio.shield(session.close())
+
+        
         
         
 @search_router.message(StateFilter(None), F.text == "🚪")
@@ -116,7 +120,7 @@ async def next_user(message: Message, session: AsyncSession, bot: Bot):
                 
                 # if like_stats_of_target_user and str(target_user.user_id) not in like_stats_list:
                 if like_stats_of_target_user:
-                    if like_stats_of_target_user.liked_users_id is '':
+                    if like_stats_of_target_user.liked_users_id == '':
                         liked_users_id = f"{message.from_user.id}"
                         await add_liked_user(session, target_user.user_id, liked_users_id)
                         await bot.send_message(chat_id=target_user.user_id, text="Кто-то вами заинтересовался!")
@@ -139,78 +143,3 @@ async def next_user(message: Message, session: AsyncSession, bot: Bot):
         await message.answer_photo(target_users[iter].photo, caption=f'🎴{target_users[iter].name}, {target_users[iter].age}, {target_users[iter].city}\n🏛<b>{target_users[iter].uni_name}</b>\n🔍<b>{target_users[iter].target}</b>\n\n{target_users[iter].description}', reply_markup=search_kb) 
     
     
-    
-# @search_router.message(F.text == "Показать")
-# async def show_liked_users(message: Message, session: AsyncSession, state: FSMContext):
-#     await state.clear()
-#     liked_users_iter = await get_like_iterator(session, message.from_user.id)
-#     user_like_stats = await get_like(session, message.from_user.id)
-    
-#     liked_users_id = user_like_stats.liked_users_id.split(",")
-#     liked_user = await get_full_user_info(session, int(liked_users_id[liked_users_iter]))
-    
-#     await message.answer_photo(liked_user["photo"], caption=f'Вы заинтересовали:\n\n🎴{liked_user["name"]}, {liked_user["age"]}, {liked_user["uni_city"]}\n🏛<b>{liked_user["uni_name"]}</b>\n🔍<b>{liked_user["target"]}</b>\n\n{liked_user.description}', reply_markup=is_like_kb)
-    
-    
-    
-# @search_router.message(F.text.in_(["💛", "🙈"]))
-# async def like(message: Message, session: AsyncSession, bot: Bot):
-    
-#     user = await get_full_user_info(session, message.from_user.id)
-#     user_like_stats = await get_like(session, message.from_user.id)
-    
-#     liked_users_iter = user["like_iterator"]
-#     print(liked_users_iter)
-    
-#     liked_users = user_like_stats.liked_users_id.split(",")
-#     try:
-#         liked_user = await get_full_user_info(session, liked_users[liked_users_iter])
-#     except IndexError:
-#         await add_liked_user(session, user["user_id"], "")
-#         await set_like_iterator(session, message.from_user.id, 0)
-#         await message.answer("Пока все, смотреть анкеты дальше?", reply_markup=exit_from_liked_kb)
-    
-    
-#     if message.text == "💛":
-#         await message.answer(f"Приятного общения! @{liked_user.username}")
-#         await bot.send_photo(chat_id=liked_user.user_id, 
-#                             photo=user.photo, 
-#                             caption=f'Взаимный интерес! Приятного общения c @{user.username}\n\n🎴{user["name"]}, {user["age"]}, {user["uni_city"]}\n🏛<b>{user["uni_name"]}</b>\n🔍<b>{user["target"]}</b>\n\n{user["description"]}', 
-#                             reply_markup=exit_from_liked_kb)
-    
-#     if liked_users_iter == len(liked_users) - 1:
-#         await add_liked_user(session, user.user_id, "")
-#         await set_like_iterator(session, message.from_user.id, 0)
-#         await message.answer("Пока все, продолжить поиск?", reply_markup=exit_from_liked_kb)
-#     else:
-#         liked_users_iter += 1
-#         await set_like_iterator(session, message.from_user.id, liked_users_iter)
-#         liked_user = await get_full_user_info(session, liked_users[liked_users_iter])
-#         await message.answer_photo(liked_user["photo"], caption=f'Вы заинтересовали:\n\n🎴{liked_user["name"]}, {liked_user["age"]}, {liked_user["uni_city"]}\n🏛{liked_user["uni_name"]}\n🔍<b>{user["target"]}</b>\n\n{liked_user["description"]}', reply_markup=is_like_kb)
-        
-    
-
-# @search_router.message(F.text.in_(["Продолжить просмотр анкет", "Поехали", "Меню", "Позже"]))
-# async def continue_search(message: Message, session: AsyncSession):
-    
-#     iter = await get_iterator(session, message.from_user.id)
-    
-#     user_info = await get_full_user_info(session, message.from_user.id)
-#     if user_info:
-#         target_users = await search_users(session, user_info)
-        
-#     if iter == 0:
-#         await set_iterator(session, message.from_user.id, len(target_users) - 1)
-#     else:
-#         await set_iterator(session, message.from_user.id, iter - 1)
-        
-#     if message.text == "Меню":
-#         await message.answer("Вы вернулись в главное меню!", reply_markup=await get_menu_keyboard("Искать людей", 
-#                                                                                                "Кто меня лайкнул?", 
-#                                                                                                "Мой профиль", 
-#                                                                                                "Параметры поиска",
-#                                                                                                placeholder="Выберите действие", 
-#                                                                                                sizes=(2, 2), 
-#                                                                                                user_id=message.from_user.id))
-#     else:
-#         await start_search(message, session)

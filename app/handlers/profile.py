@@ -61,7 +61,6 @@ async def get_description(message: Message, state: FSMContext, session: AsyncSes
         
     data = await state.get_data()
     user = await get_full_user_info(session, message.from_user.id)
-    uni = await get_uni_by_id(session, user.uni_id)
     await state.set_state(Description.confirmation)
     
     await message.answer("Ваша анкета:", reply_markup=ReplyKeyboardRemove())
@@ -102,8 +101,6 @@ async def photo_change(message: Message, state: FSMContext):
 async def get_photo(message: Message, state: FSMContext, session: AsyncSession):
     await state.update_data(photo=message.photo[-1].file_id)
         
-    data = await state.get_data()
-    user = await get_user_by_user_id(session, message.from_user.id)
     await state.set_state(Photo.confirmation)
     
     await message.answer("Подтвердить изменения?", reply_markup=confirmation_kb)
