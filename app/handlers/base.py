@@ -24,9 +24,11 @@ profile_kb = get_keyboard(
     "🔄",
     "📝",
     "🖼",
+    "Выложить проект",
+    "Мои проекты",
     "Назад",
     placeholder="Выберите действие",
-    sizes=(3, 1)
+    sizes=(3, 2, 1)
 )
 
 
@@ -65,22 +67,14 @@ async def start_is_auth(message: Message, state: FSMContext, session: AsyncSessi
     user = await get_user_by_user_id(session, message.from_user.id)
     if user:
         await state.clear()
-        await message.answer("Главное меню", reply_markup=await get_menu_keyboard(
-            "🔍Искать людей",
-            "💕Кто меня лайкнул?",
-            "🙎‍♂️Мой профиль",
-            "⚙️Параметры поиска",
-            placeholder="Выберите действие",
-            sizes=(1, ),
-            user_id=message.from_user.id
-        ))
+        await message.answer("Главное меню", reply_markup=await get_menu_keyboard(user_id=message.from_user.id))
     else:
         await state.clear()
         await start_auth(message, state)
     
     
     
-@base_router.message(F.text == "🙎‍♂️Мой профиль")
+@base_router.message(F.text == "🙍🏻‍♂️Мой профиль")
 async def my_profile(message: Message, session: AsyncSession):
     user = await get_full_user_info(session, message.from_user.id)
     if user:
@@ -91,15 +85,7 @@ async def my_profile(message: Message, session: AsyncSession):
         
 @base_router.message(F.text == "Назад")
 async def back(message: Message):
-    await message.answer("Меню", reply_markup=await get_menu_keyboard(
-        "🔍Искать людей",
-        "💕Кто меня лайкнул?",
-        "🙎‍♂️Мой профиль",
-        "⚙️Параметры поиска",
-        placeholder="Выберите действие",
-        sizes=(1, ),
-        user_id=message.from_user.id
-    ))
+    await message.answer("Меню", reply_markup=await get_menu_keyboard(user_id=message.from_user.id))
     
 
 @base_router.message(F.text)

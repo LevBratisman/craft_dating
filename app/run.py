@@ -17,6 +17,10 @@ from handlers.commands import cmd_router
 from handlers.like import like_router
 from handlers.admin.admin import admin_router
 from handlers.admin.addbot import adbot_router
+from handlers.project.fill import project_fill_router
+from handlers.project.base import base_project_router
+from handlers.project.requests import requests_router
+from handlers.project.search import search_project_router
 
 from common.cmd_list import private
 
@@ -67,6 +71,10 @@ dp.include_router(profile_router)
 dp.include_router(search_settings_router)
 dp.include_router(search_router)
 dp.include_router(like_router)
+dp.include_router(project_fill_router)
+dp.include_router(base_project_router)
+dp.include_router(requests_router)
+dp.include_router(search_project_router)
 dp.include_router(base_router)
 
 
@@ -84,7 +92,7 @@ if __name__ == "__main__":
         # asyncio.run(main())
     except KeyboardInterrupt:
         print("error")
-        #https://api.telegram.org/bot6727500986:AAE5xqYxeyOwV7jNPOJDPzT1_l4Dd4bOjY4/setWebhook?url=https://ddaa-2a00-1fa0-27e-a2e9-97a-a315-fc9-4e06.ngrok-free.app
+        #https://api.telegram.org/bot6727500986:AAE5xqYxeyOwV7jNPOJDPzT1_l4Dd4bOjY4/setWebhook?url=https://83d9-2a00-1fa0-4311-45d2-14f2-8b75-f956-cebb.ngrok-free.app
         #https://api.telegram.org/bot6727500986:AAE5xqYxeyOwV7jNPOJDPzT1_l4Dd4bOjY4/getWebhookInfo
         #/root/.cache/pypoetry/virtualenvs/bot-3nGdubw0-py3.11/bin/activate /home/bot/app/run.py
         

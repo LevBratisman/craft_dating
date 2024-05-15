@@ -43,6 +43,10 @@ async def get_count_users_last_days(session: AsyncSession, days: int):
     return result.scalars().all()
 
 
+async def get_uni_id_by_user_id(session, user_id):
+    return select(User.uni_id).where(User.user_id == user_id)
+
+
 # Получение id пользователя по user_id
 async def get_user_by_user_id(session: AsyncSession, user_id: int):
     query = select(User).where(User.user_id == user_id)
@@ -127,6 +131,31 @@ async def set_like_iterator(session: AsyncSession, user_id: int, like_iterator: 
     await session.execute(query)
     await session.commit()
     
+    
+    
+async def get_project_iterator(session: AsyncSession, user_id: int):
+    query = select(User).where(User.user_id == user_id)
+    result = await session.execute(query)
+    return result.scalars().first().project_iterator
+    
+    
+async def set_project_iterator(session: AsyncSession, user_id: int, project_iterator: int):
+    query = update(User).where(User.user_id == user_id).values(project_iterator=project_iterator)
+    await session.execute(query)
+    await session.commit()
+    
+    
+async def get_request_iterator(session: AsyncSession, user_id: int):
+    query = select(User).where(User.user_id == user_id)
+    result = await session.execute(query)
+    return result.scalars().first().request_iterator
+    
+    
+async def set_request_iterator(session: AsyncSession, user_id: int, request_iterator: int):
+    query = update(User).where(User.user_id == user_id).values(request_iterator=request_iterator)
+    await session.execute(query)
+    await session.commit()
+    
 
 async def delete_user(session: AsyncSession, user_id: int):
     query = delete(User).where(User.user_id == user_id)
@@ -148,6 +177,8 @@ async def get_full_user_info(session: AsyncSession, user_id: int):
             User.description,
             User.iterator,
             User.like_iterator,
+            User.project_iterator,
+            User.request_iterator,
             Uni.id.label('uni_id'),
             Uni.name.label('uni_name'),
             Uni.city.label('uni_city'),

@@ -33,6 +33,8 @@ class User(Base):
     description: Mapped[str] = mapped_column(nullable=True)
     iterator: Mapped[int] = mapped_column(nullable=True, default=0)
     like_iterator: Mapped[int] = mapped_column(nullable=True, default=0)
+    project_iterator: Mapped[int] = mapped_column(nullable=True, default=0)
+    request_iterator: Mapped[int] = mapped_column(nullable=True, default=0)
     uni_id: Mapped[int] = mapped_column(ForeignKey('uni.id', ondelete='CASCADE'), nullable=True)
     
     uni: Mapped['Uni'] = relationship(backref='user')
@@ -59,5 +61,26 @@ class Like(Base):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     user_id: Mapped[int] = mapped_column()
     liked_users_id: Mapped[str] = mapped_column()
+    
+    
+class Project(Base):
+    __tablename__ = 'project'
+    
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    user_id: Mapped[int] = mapped_column()
+    uni_id: Mapped[int] = mapped_column(ForeignKey('uni.id', ondelete='CASCADE'), nullable=True)
+    project_name: Mapped[str] = mapped_column()
+    project_description: Mapped[str] = mapped_column()
+    project_requirements: Mapped[str] = mapped_column()
+    project_image: Mapped[str] = mapped_column()
 
 
+class Request(Base):
+    __tablename__ = 'request'
+    
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    user_id: Mapped[int] = mapped_column()
+    project_id: Mapped[int] = mapped_column(ForeignKey('project.id', ondelete='CASCADE'), nullable=True)
+    creator_id: Mapped[int] = mapped_column()
+    
+    project: Mapped['Project'] = relationship(backref='request')

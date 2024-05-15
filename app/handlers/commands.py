@@ -21,13 +21,7 @@ class SendFeedback(StatesGroup):
 @cmd_router.message(Command("menu"))
 async def back(message: Message, state: FSMContext):
     await state.clear()
-    await message.answer("Меню", reply_markup=await get_menu_keyboard("🔍Искать людей", 
-                                                                    "💕Кто меня лайкнул?", 
-                                                                    "🙎‍♂️Мой профиль", 
-                                                                    "⚙️Параметры поиска",
-                                                                    placeholder="Выберите действие", 
-                                                                    sizes=(1, ), 
-                                                                    user_id=message.from_user.id))
+    await message.answer("Меню", reply_markup=await get_menu_keyboard(user_id=message.from_user.id))
         
 
 # Отправка отзыва -----------------------------------------
@@ -35,13 +29,7 @@ async def back(message: Message, state: FSMContext):
 @cmd_router.message(Command("feedback"))
 async def cmd_feedback(message: Message, state: FSMContext):
     await state.clear()
-    await message.answer("Вы можете отправить отзыв в специальный чат @unidatefeed", reply_markup=await get_menu_keyboard("🔍Искать людей", 
-                                                                                               "💕Кто меня лайкнул?", 
-                                                                                               "🙎‍♂️Мой профиль", 
-                                                                                               "⚙️Параметры поиска",
-                                                                                               placeholder="Выберите действие", 
-                                                                                               sizes=(1, ), 
-                                                                                               user_id=message.from_user.id))
+    await message.answer("Вы можете отправить отзыв в специальный чат @unidatefeed", reply_markup=await get_menu_keyboard(user_id=message.from_user.id))
     
     
 # ---------------------------------------------------------------
@@ -56,22 +44,10 @@ async def cmd_search(message: Message, state: FSMContext, session: AsyncSession)
 @cmd_router.message(Command("contacts"))
 async def cmd_feedback(message: Message, state: FSMContext):
     await state.clear()
-    await message.answer("По всем вопросам обращайтесь к @bratisman", reply_markup=await get_menu_keyboard("🔍Искать людей", 
-                                                                                               "💕Кто меня лайкнул?", 
-                                                                                               "🙎‍♂️Мой профиль", 
-                                                                                               "⚙️Параметры поиска",
-                                                                                               placeholder="Выберите действие", 
-                                                                                               sizes=(1, ), 
-                                                                                               user_id=message.from_user.id))
+    await message.answer("По всем вопросам обращайтесь к @bratisman", reply_markup=await get_menu_keyboard(user_id=message.from_user.id))
     
     
 @cmd_router.message(Command("help"))
 async def cmd_search(message: Message, state: FSMContext):
     await state.clear()
-    await message.answer(help_text, reply_markup=await get_menu_keyboard("🔍Искать людей", 
-                                                                        "💕Кто меня лайкнул?", 
-                                                                        "🙎‍♂️Мой профиль", 
-                                                                        "⚙️Параметры поиска",
-                                                                        placeholder="Выберите действие", 
-                                                                        sizes=(1, ), 
-                                                                        user_id=message.from_user.id))
+    await message.answer(help_text, reply_markup=await get_menu_keyboard(user_id=message.from_user.id))

@@ -26,7 +26,7 @@ search_kb = get_keyboard(
 )
 
 is_like_kb = get_keyboard(
-    "💞",
+    "💚",
     "🚫"
 )
 
@@ -37,7 +37,7 @@ exit_from_liked_kb = get_keyboard(
 
 
 
-@like_router.message(F.text.contains("💕Кто меня лайкнул?"))
+@like_router.message(F.text.contains("💛Кто меня лайкнул?"))
 async def show_liked_users(message: Message, session: AsyncSession):
     liked_users_iter = await get_like_iterator(session, message.from_user.id)
     user_like_stats = await get_like(session, message.from_user.id)
@@ -52,7 +52,7 @@ async def show_liked_users(message: Message, session: AsyncSession):
     
     
     
-@like_router.message(F.text.in_(["💞", "🚫"]))
+@like_router.message(F.text.in_(["💚", "🚫"]))
 async def like(message: Message, session: AsyncSession, bot: Bot):
     
     user = await get_full_user_info(session, message.from_user.id)
@@ -66,16 +66,10 @@ async def like(message: Message, session: AsyncSession, bot: Bot):
     except IndexError:
         await add_liked_user(session, user["user_id"], "")
         await set_like_iterator(session, message.from_user.id, 0)
-        await message.answer("На этом все", reply_markup=await get_menu_keyboard("🔍Искать людей", 
-                                                                                "💕Кто меня лайкнул?", 
-                                                                                "🙎‍♂️Мой профиль", 
-                                                                                "⚙️Параметры поиска",
-                                                                                placeholder="Выберите действие", 
-                                                                                sizes=(1, ), 
-                                                                                user_id=message.from_user.id))
+        await message.answer("На этом все", reply_markup=await get_menu_keyboard(user_id=message.from_user.id))
     
     
-    if message.text == "💞":
+    if message.text == "💚":
         await message.answer(f"Приятного общения c @{liked_user.username}!")
         await bot.send_photo(chat_id=liked_user.user_id, 
                             photo=user.photo, 
@@ -85,13 +79,7 @@ async def like(message: Message, session: AsyncSession, bot: Bot):
     if liked_users_iter == len(liked_users) - 1:
         await add_liked_user(session, user.user_id, "")
         await set_like_iterator(session, message.from_user.id, 0)
-        await message.answer("На этом все", reply_markup=await get_menu_keyboard("🔍Искать людей", 
-                                                                                "💕Кто меня лайкнул?", 
-                                                                                "🙎‍♂️Мой профиль", 
-                                                                                "⚙️Параметры поиска",
-                                                                                placeholder="Выберите действие", 
-                                                                                sizes=(1, ), 
-                                                                                user_id=message.from_user.id))
+        await message.answer("На этом все", reply_markup=await get_menu_keyboard(user_id=message.from_user.id))
     else:
         liked_users_iter += 1
         await set_like_iterator(session, message.from_user.id, liked_users_iter)
@@ -106,13 +94,7 @@ async def continue_search(message: Message, session: AsyncSession, state: FSMCon
     await state.clear()
         
     if message.text == "Меню":
-        await message.answer("Вы вернулись в главное меню!", reply_markup=await get_menu_keyboard("🔍Искать людей", 
-                                                                                               "💕Кто меня лайкнул?", 
-                                                                                               "🙎‍♂️Мой профиль", 
-                                                                                               "⚙️Параметры поиска",
-                                                                                               placeholder="Выберите действие", 
-                                                                                               sizes=(1, ), 
-                                                                                               user_id=message.from_user.id))
+        await message.answer("Вы вернулись в главное меню!", reply_markup=await get_menu_keyboard(user_id=message.from_user.id))
     else:
         iter = await get_iterator(session, message.from_user.id)
     

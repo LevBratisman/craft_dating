@@ -14,6 +14,8 @@ from app.database.models import Uni
 from app.database.models import User
 from app.database.models import Filter
 from app.database.models import Like
+from app.database.models import Project
+from app.database.models import Request
 
 
 # this is the Alembic Config object, which provides

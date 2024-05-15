@@ -74,13 +74,7 @@ async def start_search(message: Message, session: AsyncSession):
         
 @search_router.message(StateFilter(None), F.text == "🚪")
 async def back(message: Message):
-    await message.answer("Меню", reply_markup=await get_menu_keyboard("🔍Искать людей", 
-                                                                    "💕Кто меня лайкнул?", 
-                                                                    "🙎‍♂️Мой профиль", 
-                                                                    "⚙️Параметры поиска",
-                                                                    placeholder="Выберите действие", 
-                                                                    sizes=(1, ), 
-                                                                    user_id=message.from_user.id))
+    await message.answer("Меню", reply_markup=await get_menu_keyboard(user_id=message.from_user.id))
     
     
 
@@ -96,13 +90,7 @@ async def next_user(message: Message, session: AsyncSession, bot: Bot):
         target_users = await search_users(session, user_info)
     
     if not target_users:
-        await message.answer("По вашему запросу ничего не найдено", reply_markup=await get_menu_keyboard("🔍Искать людей", 
-                                                                                               "💕Кто меня лайкнул?", 
-                                                                                               "🙎‍♂️Мой профиль", 
-                                                                                               "⚙️Параметры поиска",
-                                                                                               placeholder="Выберите действие", 
-                                                                                               sizes=(1, ), 
-                                                                                               user_id=message.from_user.id))
+        await message.answer("По вашему запросу ничего не найдено", reply_markup=await get_menu_keyboard(user_id=message.from_user.id))
         return
     
     try:

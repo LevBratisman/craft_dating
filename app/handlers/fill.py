@@ -153,7 +153,8 @@ async def get_description(message: Message, state: FSMContext, session: AsyncSes
         "photo": data["photo"],
         "description": data["description"],
         "iterator": 0,
-        "like_iterator": 0
+        "like_iterator": 0,
+        "project_iterator": 0
     }
     
     data_filter = {
@@ -175,13 +176,6 @@ async def get_description(message: Message, state: FSMContext, session: AsyncSes
     
     uni = await get_uni_by_id(session, data["uni"])
     
-    await message.answer("Ваша анкета успешно заполнена", reply_markup=await get_menu_keyboard("🔍Искать людей", 
-                                                                                               "💕Кто меня лайкнул?", 
-                                                                                               "🙎‍♂️Мой профиль", 
-                                                                                               "⚙️Параметры поиска",
-                                                                                               placeholder="Выберите действие", 
-                                                                                               sizes=(1, ), 
-                                                                                               user_id=message.from_user.id
-                                                                                               ))
+    await message.answer("Ваша анкета успешно заполнена", reply_markup=await get_menu_keyboard(user_id=message.from_user.id))
     await message.answer_photo(data["photo"], caption=f'🎴{data["name"]}, {data["age"]}\n🏛<b>{uni.name}</b>\n🔍<b>{data["target"]}</b>\n\n{data["description"]}')
     await state.clear()
