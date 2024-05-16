@@ -36,7 +36,7 @@ async def get_my_requests(message: Message, session: AsyncSession):
             await message.answer("Ваши заявки", reply_markup=request_kb)
             request_user = await get_full_user_info(session, requests[iter].user_id)
             project = await get_project_by_id(session, requests[iter].project_id)
-            await message.answer_photo(request_user.photo, caption=f"Заявка от @{request_user.username}\nПроект: <b>{project.project_name}</b>", reply_markup=get_callback_btns(btns={"Удалить заявку": f"delete_request_{requests[iter].id}"}))
+            await message.answer_photo(request_user.photo, caption=f"Заявка от @{request_user.username}\nПроект: <b>{project.project_name}</b>\n\n{requests[iter].text}", reply_markup=get_callback_btns(btns={"Удалить заявку": f"delete_request_{requests[iter].id}"}))
             await set_request_iterator(session, message.from_user.id, 1)
         else:
             await message.answer("Заявок нет")
@@ -56,7 +56,7 @@ async def next_request(message: Message, session: AsyncSession):
             return
         request_user = await get_full_user_info(session, requests[iter].user_id)
         project = await get_project_by_id(session, requests[iter].project_id)
-        await message.answer_photo(request_user.photo, caption=f"Заявка от @{request_user.username}\nПроект: <b>{project.project_name}</b>", reply_markup=get_callback_btns(btns={"Удалить заявку": f"delete_request_{requests[iter].id}"}))
+        await message.answer_photo(request_user.photo, caption=f"Заявка от @{request_user.username}\nПроект: <b>{project.project_name}</b>\n\n{requests[iter].text}", reply_markup=get_callback_btns(btns={"Удалить заявку": f"delete_request_{requests[iter].id}"}))
         await set_request_iterator(session, message.from_user.id, iter + 1)
         
                 
@@ -66,6 +66,7 @@ async def next_request(message: Message, session: AsyncSession):
 async def delete_request(callback: CallbackQuery, session: AsyncSession, state: FSMContext):
     request_id = int(callback.data.split("_")[2])
     await delete_request_by_id(session, request_id)
+    await callback.answer("Заявка была удалена")
     await callback.message.delete()
     if not await get_requests_by_creator_id(session, callback.from_user.id):
         await callback.message.answer("Заявок больше нет", reply_markup=await get_menu_keyboard(user_id=callback.from_user.id))

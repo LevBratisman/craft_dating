@@ -88,7 +88,7 @@ async def back(message: Message):
     await message.answer("Меню", reply_markup=await get_menu_keyboard(user_id=message.from_user.id))
     
 
-@base_router.message(F.text)
+@base_router.message(StateFilter(None), F.text)
 async def not_handled(message: Message):
     await message.answer("Я не понимаю эту команду")
 

@@ -1,5 +1,5 @@
 from aiogram import F, Router
-from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove
+from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove, InputMediaPhoto
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.context import FSMContext
 from aiogram.filters import StateFilter
@@ -88,6 +88,7 @@ async def get_project_img(message: Message, state: FSMContext, session: AsyncSes
     await state.update_data(project_image=message.photo[-1].file_id)
     await state.set_state(ProjectInfo.confirmation)
     data = await state.get_data()
+    await message.answer("Подтвердите изменения", reply_markup=ReplyKeyboardRemove())
     await message.answer_photo(photo=data["project_image"], caption=f'<b>{data["project_name"]}</b>\n\n<b>ОПИСАНИЕ</b>\n{data["project_description"]}\n\n<b>КОГО ИЩЕМ?</b>\n{data["project_requirements"]}', reply_markup=confirm_kb)
     
     
@@ -96,6 +97,7 @@ async def get_project_img(message: Message, state: FSMContext, session: AsyncSes
     await state.update_data(project_image=None)
     await state.set_state(ProjectInfo.confirmation)
     data = await state.get_data()
+    await message.answer("Подтвердите изменения", reply_markup=ReplyKeyboardRemove())
     await message.answer(f'<b>{data["project_name"]}</b>\n\n<b>ОПИСАНИЕ</b>\n{data["project_description"]}\n\n<b>КОГО ИЩЕМ?</b>\n{data["project_requirements"]}', reply_markup=confirm_kb)
     
     
@@ -103,10 +105,14 @@ async def get_project_img(message: Message, state: FSMContext, session: AsyncSes
 async def get_project_confirm(callback: CallbackQuery, state: FSMContext, session: AsyncSession):
     await callback.message.delete()
     if callback.data == "Подтвердить":
+        
+        
+        
         await state.update_data(user_id=callback.from_user.id)
         uni_id = await get_uni_id_by_user_id(session, callback.from_user.id)
         await state.update_data(uni_id=uni_id)
         data = await state.get_data()
+        
         await add_project(session, data)
         await state.clear()
         await callback.message.answer("Ваш проект успешно опубликован", reply_markup=profile_kb)

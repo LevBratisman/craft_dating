@@ -25,3 +25,15 @@ async def get_projects_by_uni_id(session: AsyncSession, uni_id: int):
     query = select(Project).where(Project.uni_id == uni_id)
     result = await session.execute(query)
     return result.scalars().all()
+
+
+async def delete_project_by_id(session: AsyncSession, project_id: int):
+    query = delete(Project).where(Project.id == project_id)
+    await session.execute(query)
+    await session.commit()
+    
+    
+async def update_project_by_id(session: AsyncSession, project_id: int, data: dict[str, str]):
+    query = update(Project).where(Project.id == project_id).values(**data)
+    await session.execute(query)
+    await session.commit()

@@ -1,6 +1,8 @@
 from aiogram import F, Router, Bot
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove
 from aiogram.filters import StateFilter
+from aiogram.fsm.state import StatesGroup, State
+from aiogram.fsm.context import FSMContext
 from sqlalchemy.ext.asyncio import AsyncSession
 import asyncio
 
@@ -22,6 +24,11 @@ from app.keyboards.reply import get_menu_keyboard
 search_project_router = Router()
 
 
+class SendRequest(StatesGroup):
+    project_id = State()
+    text = State()
+
+
 project_search_kb = get_keyboard(
     "Далее",
     "🚪",
@@ -32,7 +39,7 @@ project_search_kb = get_keyboard(
 
 @search_project_router.message(StateFilter(None), F.text.in_(["💡Искать проекты", "Далее"]))
 async def start_search_project(message: Message, session: AsyncSession):
-    await message.answer("🔍", reply_markup=project_search_kb)
+    
     user = await get_full_user_info(session, message.from_user.id)
     
     if user:
@@ -40,6 +47,7 @@ async def start_search_project(message: Message, session: AsyncSession):
         iter = user.project_iterator
         
         if target_projects:
+            await message.answer("🔍", reply_markup=project_search_kb)
             try:
                 current_project = target_projects[iter]
                 bid_keyboard = get_callback_btns(
@@ -79,19 +87,38 @@ async def back(message: Message):
     
     
 @search_project_router.callback_query(StateFilter(None), F.data.contains("request_"))
-async def bid(callback: CallbackQuery, session: AsyncSession):
+async def bid(callback: CallbackQuery, session: AsyncSession, state: FSMContext):
     project_id = int(callback.data.split("_")[1])
-    project = await get_project_by_id(session, project_id)
+    await state.set_state(SendRequest.text)
+    await state.update_data(project_id=project_id)
+    
     if await get_requests_by_project_id(session, project_id):
         await callback.answer("Вы уже подали заявку")
+        await state.clear()
         return
+    
+    await callback.answer("Подача заявки")
+    
+    await callback.message.answer("Введите текст заявки", reply_markup=ReplyKeyboardRemove())
+    
+    
+    
+@search_project_router.message(StateFilter(SendRequest.text), F.text)
+async def get_text(message: Message, state: FSMContext, session: AsyncSession, bot: Bot):
+    await state.update_data(text=message.text)
+    data = await state.get_data()
+    project_id = data.pop("project_id")
+    project = await get_project_by_id(session, project_id)
+    
     data = {
-        "user_id": callback.from_user.id,
+        "user_id": message.from_user.id,
         "project_id": project_id,
-        "creator_id": project.user_id
+        "creator_id": project.user_id,
+        "text": message.text
     }
     await add_request(session, data)
-    await callback.answer("Заявка отправлена")
-            
-    
+    await state.clear()
+    await message.answer("Заявка отправлена")
+    await bot.send_message(project.user_id, "Новая заявка на проект!")
+    await start_search_project(message, session)
     

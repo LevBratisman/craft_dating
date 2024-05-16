@@ -72,7 +72,7 @@ class Project(Base):
     project_name: Mapped[str] = mapped_column()
     project_description: Mapped[str] = mapped_column()
     project_requirements: Mapped[str] = mapped_column()
-    project_image: Mapped[str] = mapped_column()
+    project_image: Mapped[str] = mapped_column(nullable=True)
 
 
 class Request(Base):
@@ -82,5 +82,6 @@ class Request(Base):
     user_id: Mapped[int] = mapped_column()
     project_id: Mapped[int] = mapped_column(ForeignKey('project.id', ondelete='CASCADE'), nullable=True)
     creator_id: Mapped[int] = mapped_column()
+    text: Mapped[str] = mapped_column()
     
     project: Mapped['Project'] = relationship(backref='request')
