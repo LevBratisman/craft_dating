@@ -92,7 +92,7 @@ if __name__ == "__main__":
         # asyncio.run(main())
     except KeyboardInterrupt:
         print("error")
-        #https://api.telegram.org/bot6727500986:AAE5xqYxeyOwV7jNPOJDPzT1_l4Dd4bOjY4/setWebhook?url=https://83d9-2a00-1fa0-4311-45d2-14f2-8b75-f956-cebb.ngrok-free.app
+        #https://api.telegram.org/bot6727500986:AAE5xqYxeyOwV7jNPOJDPzT1_l4Dd4bOjY4/setWebhook?url=https://6a29-2001-ac8-31-1787-e82f-4679-18cc-7.ngrok-free.app
         #https://api.telegram.org/bot6727500986:AAE5xqYxeyOwV7jNPOJDPzT1_l4Dd4bOjY4/getWebhookInfo
         #/root/.cache/pypoetry/virtualenvs/bot-3nGdubw0-py3.11/bin/activate /home/bot/app/run.py
         

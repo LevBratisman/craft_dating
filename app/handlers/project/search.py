@@ -143,6 +143,12 @@ async def back(message: Message):
 @search_project_router.callback_query(StateFilter(None), F.data.contains("request_"))
 async def bid(callback: CallbackQuery, session: AsyncSession, state: FSMContext):
     project_id = int(callback.data.split("_")[1])
+    
+    project = await get_project_by_id(session, project_id)
+    if not project:
+        await callback.answer("Проект был удален")
+        return
+    
     await state.set_state(SendRequest.text)
     await state.update_data(project_id=project_id)
     
