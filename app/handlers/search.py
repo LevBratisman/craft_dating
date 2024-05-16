@@ -43,9 +43,6 @@ is_like_check_kb = get_keyboard(
 @search_router.message(StateFilter(None), F.text == "🔍Искать людей")
 async def start_search(message: Message, session: AsyncSession):
     
-    await message.answer("🔍")
-    iter = await get_iterator(session, message.from_user.id)
-    
     user_info = await get_full_user_info(session, message.from_user.id)
     
     if user_info:
@@ -53,6 +50,8 @@ async def start_search(message: Message, session: AsyncSession):
         target_users = await search_users(session, user_info)
         
         if target_users:
+            iter = await get_iterator(session, message.from_user.id)
+            await message.answer("🔍")
             try:
                 await set_iterator(session, message.from_user.id, iter + 1)
                 iter += 1

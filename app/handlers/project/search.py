@@ -9,7 +9,7 @@ import asyncio
 from app.database.dao.user import set_iterator, get_iterator, get_full_user_info, get_project_iterator, set_project_iterator, get_uni_id_by_user_id
 from app.database.dao.filter import get_filter
 from app.database.dao.like import add_liked_user, get_like
-from app.database.dao.project import get_project_by_id, get_projects_by_uni_id
+from app.database.dao.project import get_project_by_id, get_projects_by_uni_id, get_projects_by_user_id
 from app.database.dao.request import add_request, get_requests_by_project_id
 
 from app.keyboards.reply import get_keyboard
@@ -37,7 +37,7 @@ project_search_kb = get_keyboard(
 )
 
 
-@search_project_router.message(StateFilter(None), F.text.in_(["💡Искать проекты", "Далее"]))
+@search_project_router.message(StateFilter(None), F.text == "💡Искать проекты")
 async def start_search_project(message: Message, session: AsyncSession):
     
     user = await get_full_user_info(session, message.from_user.id)
@@ -46,29 +46,37 @@ async def start_search_project(message: Message, session: AsyncSession):
         target_projects = await get_projects_by_uni_id(session, user.uni_id)
         iter = user.project_iterator
         
-        if target_projects:
+        if target_projects and len(target_projects) != len(await get_projects_by_user_id(session, message.from_user.id)):
             await message.answer("🔍", reply_markup=project_search_kb)
             try:
                 current_project = target_projects[iter]
                 bid_keyboard = get_callback_btns(
                     btns={"Подать заявку": f"request_{current_project.id}"},
                 )
-                if current_project.project_image:
-                    await message.answer_photo(current_project.project_image, caption=f'<b>{current_project.project_name}</b>\n\n<b>ОПИСАНИЕ</b>\n{current_project.project_description}\n\n<b>КОГО ИЩЕМ?</b>\n{current_project.project_description}', reply_markup=bid_keyboard)
+                if current_project.user_id != message.from_user.id:
+                    if current_project.project_image:
+                        await message.answer_photo(current_project.project_image, caption=f'<b>{current_project.project_name}</b>\n\n<b>ОПИСАНИЕ</b>\n{current_project.project_description}\n\n<b>КОГО ИЩЕМ?</b>\n{current_project.project_description}', reply_markup=bid_keyboard)
+                    else:
+                        await message.answer(f'<b>{current_project.project_name}</b>\n\n<b>ОПИСАНИЕ</b>\n{current_project.project_description}\n\n<b>КОГО ИЩЕМ?</b>\n{current_project.project_description}', reply_markup=bid_keyboard)
+                    await set_project_iterator(session, message.from_user.id, iter + 1)
                 else:
-                    await message.answer(f'<b>{current_project.project_name}</b>\n\n<b>ОПИСАНИЕ</b>\n{current_project.project_description}\n\n<b>КОГО ИЩЕМ?</b>\n{current_project.project_description}', reply_markup=bid_keyboard)
-                await set_iterator(session, message.from_user.id, iter + 1)
+                    await set_project_iterator(session, message.from_user.id, iter + 1)
+                    await next(message, session)
             except IndexError:
                 iter = 0
                 current_project = target_projects[iter]
                 bid_keyboard = get_callback_btns(
-                    {"Подать заявку": f"request_{current_project.id}"},
+                    btns={"Подать заявку": f"request_{current_project.id}"},
                 )
-                if current_project.project_image:
-                    await message.answer_photo(current_project.project_image, caption=f'<b>{current_project.project_name}</b>\n\n<b>ОПИСАНИЕ</b>\n{current_project.project_description}\n\n<b>КОГО ИЩЕМ?</b>\n{current_project.project_description}', reply_markup=bid_keyboard)
+                if current_project.user_id != message.from_user.id:
+                    if current_project.project_image:
+                        await message.answer_photo(current_project.project_image, caption=f'<b>{current_project.project_name}</b>\n\n<b>ОПИСАНИЕ</b>\n{current_project.project_description}\n\n<b>КОГО ИЩЕМ?</b>\n{current_project.project_description}', reply_markup=bid_keyboard)
+                    else:
+                        await message.answer(f'<b>{current_project.project_name}</b>\n\n<b>ОПИСАНИЕ</b>\n{current_project.project_description}\n\n<b>КОГО ИЩЕМ?</b>\n{current_project.project_description}', reply_markup=bid_keyboard)
+                    await set_project_iterator(session, message.from_user.id, 1)
                 else:
-                    await message.answer(f'<b>{current_project.project_name}</b>\n\n<b>ОПИСАНИЕ</b>\n{current_project.project_description}\n\n<b>КОГО ИЩЕМ?</b>\n{current_project.project_description}', reply_markup=bid_keyboard)
-                await set_iterator(session, message.from_user.id, 1)
+                    await set_project_iterator(session, message.from_user.id, iter + 1)
+                    await next(message, session)
         else:
             await message.answer("По вашему запросу ничего не найдено")
         
@@ -78,6 +86,52 @@ async def start_search_project(message: Message, session: AsyncSession):
     await asyncio.shield(session.close())
 
         
+        
+@search_project_router.message(StateFilter(None), F.text == "Далее")
+async def next(message: Message, session: AsyncSession):
+    user = await get_full_user_info(session, message.from_user.id)
+    
+    if user:
+        target_projects = await get_projects_by_uni_id(session, user.uni_id)
+        iter = user.project_iterator
+        print(iter)
+        if target_projects:
+            try:
+                current_project = target_projects[iter]
+                bid_keyboard = get_callback_btns(
+                    btns={"Подать заявку": f"request_{current_project.id}"},
+                )
+                if current_project.user_id != message.from_user.id:
+                    if current_project.project_image:
+                        await message.answer_photo(current_project.project_image, caption=f'<b>{current_project.project_name}</b>\n\n<b>ОПИСАНИЕ</b>\n{current_project.project_description}\n\n<b>КОГО ИЩЕМ?</b>\n{current_project.project_description}', reply_markup=bid_keyboard)
+                    else:
+                        await message.answer(f'<b>{current_project.project_name}</b>\n\n<b>ОПИСАНИЕ</b>\n{current_project.project_description}\n\n<b>КОГО ИЩЕМ?</b>\n{current_project.project_description}', reply_markup=bid_keyboard)
+                    await set_project_iterator(session, message.from_user.id, iter + 1)
+                else:
+                    await set_project_iterator(session, message.from_user.id, iter + 1)
+                    await next(message, session)
+            except IndexError:
+                iter = 0
+                current_project = target_projects[iter]
+                bid_keyboard = get_callback_btns(
+                    btns={"Подать заявку": f"request_{current_project.id}"},
+                )
+                if current_project.user_id != message.from_user.id:
+                    if current_project.project_image:
+                        await message.answer_photo(current_project.project_image, caption=f'<b>{current_project.project_name}</b>\n\n<b>ОПИСАНИЕ</b>\n{current_project.project_description}\n\n<b>КОГО ИЩЕМ?</b>\n{current_project.project_description}', reply_markup=bid_keyboard)
+                    else:
+                        await message.answer(f'<b>{current_project.project_name}</b>\n\n<b>ОПИСАНИЕ</b>\n{current_project.project_description}\n\n<b>КОГО ИЩЕМ?</b>\n{current_project.project_description}', reply_markup=bid_keyboard)
+                    await set_project_iterator(session, message.from_user.id, 1)
+                else:
+                    await set_project_iterator(session, message.from_user.id, 1)
+                    await next(message, session)
+        else:
+            await message.answer("По вашему запросу ничего не найдено")
+        
+    else:
+        await message.answer("Вы ещё не заполнили анкету", reply_markup=register_kb)
+        
+    await asyncio.shield(session.close())
         
         
 @search_project_router.message(StateFilter(None), F.text == "🚪")
