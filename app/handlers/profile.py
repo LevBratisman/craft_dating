@@ -65,7 +65,7 @@ async def get_description(message: Message, state: FSMContext, session: AsyncSes
     
     await message.answer("Ваша анкета:", reply_markup=ReplyKeyboardRemove())
         
-    await message.answer_photo(user.photo, caption=f'🎴{user["name"]}, {user["age"]}, {user["uni_city"]}\n<b>🏛{user["uni_name"]}</b>\n🔍<b>{user["target"]}</b>\n\n{data["description"]}', reply_markup=confirmation_kb)
+    await message.answer_photo(user.photo, caption=f'🎴{user["name"]}, {user["age"]}, {user["uni_city"]}\n<b>🏛{user["uni_name"]}</b>\n🔍<b>{user["target_desc"]}</b>\n\n{data["description"]}', reply_markup=confirmation_kb)
     
     
 @profile_router.message(StateFilter(Description.description))
@@ -84,7 +84,7 @@ async def desc_confirmation(callback: CallbackQuery, state: FSMContext, session:
     user = await get_full_user_info(session, data["user_id"])
     await state.clear()
     await callback.message.delete()
-    await callback.message.answer_photo(photo=user.photo, caption=f'🎴{user["name"]}, {user["age"]}, {user["uni_city"]}\n<b>🏛{user["uni_name"]}</b>\n🔍<b>{user["target"]}</b>\n\n{user["description"]}\n\n🔄 - Заполнить анкету заново\n📝 - Изменить описание\n🖼 - Изменить фото', reply_markup=profile_kb)
+    await callback.message.answer_photo(photo=user.photo, caption=f'🎴{user["name"]}, {user["age"]}, {user["uni_city"]}\n<b>🏛{user["uni_name"]}</b>\n🔍<b>{user["target_desc"]}</b>\n\n{user["description"]}\n\n🔄 - Заполнить анкету заново\n📝 - Изменить описание\n🖼 - Изменить фото', reply_markup=profile_kb)
     
     
 # -------------------------------- PHOTO FSM -----------------------------
@@ -121,7 +121,7 @@ async def photo_confirmation(callback: CallbackQuery, state: FSMContext, session
     user = await get_full_user_info(session, data["user_id"])
     await state.clear()
     await callback.message.delete()
-    await callback.message.answer_photo(photo=user.photo, caption=f'🎴{user["name"]}, {user["age"]}, {user["uni_city"]}\n<b>🏛{user["uni_name"]}</b>\n🔍<b>{user["target"]}</b>\n\n{user["description"]}\n\n🔄 - Заполнить анкету заново\n📝 - Изменить описание\n🖼 - Изменить фото', reply_markup=profile_kb)
+    await callback.message.answer_photo(photo=user.photo, caption=f'🎴{user["name"]}, {user["age"]}, {user["uni_city"]}\n<b>🏛{user["uni_name"]}</b>\n🔍<b>{user["target_desc"]}</b>\n\n{user["description"]}\n\n🔄 - Заполнить анкету заново\n📝 - Изменить описание\n🖼 - Изменить фото', reply_markup=profile_kb)
 
 
 # -------------------------------------------------------------

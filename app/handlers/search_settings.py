@@ -12,6 +12,7 @@ from app.database.dao.filter import get_filter, update_target, update_city, upda
 from app.database.dao.uni import get_uni_by_id, get_uni_by_name
 from app.database.dao.user import get_full_user_info
 
+from app.filters.admin import IsPremium
 
 from app.handlers.fill import pop_uni_kb
 from app.database.dao.user import get_user_by_user_id
@@ -58,7 +59,7 @@ search_settings_kb = get_keyboard(
 async def search_settings_menu(message: Message, session: AsyncSession):
     
     user_info = await get_full_user_info(session, message.from_user.id)
-    await message.answer(f'Ваши настройки:\n\n<i>Цель</i>: <b>{user_info["target"]}</b>\n<i>ВУЗ</i>: <b>{user_info["uni_name"]}</b>\n<i>Кого ищу (пол)</i>: <b>{user_info["sex_target"]}</b>\n\n1. Изменить цель\n2. Изменить ВУЗ\n3. Изменить пол', 
+    await message.answer(f'Ваши настройки:\n\n<i>Цель</i>: <b>{user_info["target"]}</b>\n<i>ВУЗ</i>: <b>{user_info["uni_name"]}</b>\n<i>Кого ищу (пол)</i>: <b>{user_info["sex_target"]}</b>\n\n1. Изменить цель (Premium)\n2. Изменить ВУЗ\n3. Изменить пол', 
                          reply_markup=search_settings_kb)
     
     
@@ -68,20 +69,29 @@ async def search_settings_menu(message: Message, session: AsyncSession):
 # --------------------------------------- TARGET FSM -----------------------------
 
 
-@search_settings_router.message(F.text == "1")
+@search_settings_router.message(IsPremium(), F.text == "1")
 async def target_settings(message: Message, state: FSMContext):
     await state.set_state(TargetSettings.target)
     await state.update_data(user_id=int(message.from_user.id))
     await message.answer_sticker("CAACAgIAAxkBAAISDGY5Jbyq2OLMjQRrwS9QSRKQER6QAAKBAQACK15TC14KbD5sAAF4tDUE", reply_markup=ReplyKeyboardRemove())
     await message.answer("Что вы ищите?", reply_markup=get_callback_btns(
-            btns={"Дружбу": "Дружба", "Отношения": "Отношения", "Как пойдет": "Как пойдет"},
-            sizes=(2, 1)
+            btns={"Дружбу": "Дружба", "Отношения": "Отношения", "Как пойдет": "Как пойдет", "Сбросить": "None"},
+            sizes=(2, 1, 1)
         ))
+    
+    
+@search_settings_router.message(F.text == "1")
+async def reject_target_settings(message: Message, state: FSMContext):
+    await message.answer("Доступно только для премиум аккаунтов")
+    
     
 
 @search_settings_router.callback_query(StateFilter(TargetSettings.target), F.data)
 async def get_target(callback: CallbackQuery, state: FSMContext):
-    await state.update_data(target=callback.data)
+    if callback.data == "None":
+        await state.update_data(target=None)
+    else:
+        await state.update_data(target=callback.data)
     await state.set_state(TargetSettings.confirmation)
     await callback.message.edit_text("Подтвердите изменения", reply_markup=get_callback_btns(
         btns={"Подтвердить": "Подтвердить", "Отменить": "Отменить"},

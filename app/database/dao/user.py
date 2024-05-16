@@ -179,6 +179,7 @@ async def get_full_user_info(session: AsyncSession, user_id: int):
             User.like_iterator,
             User.project_iterator,
             User.request_iterator,
+            User.target.label('target_desc'),
             Uni.id.label('uni_id'),
             Uni.name.label('uni_name'),
             Uni.city.label('uni_city'),

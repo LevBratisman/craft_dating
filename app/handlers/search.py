@@ -1,6 +1,6 @@
 from aiogram import F, Router, Bot
 from aiogram.types import Message
-from aiogram.filters import StateFilter
+from aiogram.filters import StateFilter, Filter
 from sqlalchemy.ext.asyncio import AsyncSession
 import asyncio
 
@@ -15,12 +15,15 @@ from app.services.search import search_users
 
 from app.keyboards.reply import get_menu_keyboard
 
+from app.filters.admin import IsPremium
+
 
 search_router = Router()
 
 
 search_kb = get_keyboard(
     "❤️",
+    "💌",
     "👎",
     "🚪",
     placeholder="Выберите действие",
@@ -130,3 +133,12 @@ async def next_user(message: Message, session: AsyncSession, bot: Bot):
         await message.answer_photo(target_users[iter].photo, caption=f'🎴{target_users[iter].name}, {target_users[iter].age}, {target_users[iter].city}\n🏛<b>{target_users[iter].uni_name}</b>\n🔍<b>{target_users[iter].target}</b>\n\n{target_users[iter].description}', reply_markup=search_kb) 
     
     
+
+@search_router.message(IsPremium(), F.text == "💌")
+async def send_request(message: Message, session: AsyncSession):
+    await message.answer("В разработке")
+    
+    
+@search_router.message(F.text == "💌")
+async def reject_request(message: Message, session: AsyncSession):
+    await message.answer("Вам необходимо оформить Premium")

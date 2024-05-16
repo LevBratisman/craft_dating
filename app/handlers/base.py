@@ -6,10 +6,12 @@ from aiogram.filters import StateFilter, CommandStart
 from sqlalchemy.ext.asyncio import AsyncSession
 
 import asyncio
+import datetime
 
 from app.database.dao.user import get_user_by_user_id, delete_user, add_user, get_full_user_info
 from app.database.dao.filter import add_filter
 from app.database.dao.uni import add_uni, get_uni_by_id
+from app.database.dao.sub import get_subscription_by_user_id
 
 from app.keyboards.reply import get_keyboard, get_menu_keyboard
 from app.handlers.fill import start_auth
@@ -77,8 +79,12 @@ async def start_is_auth(message: Message, state: FSMContext, session: AsyncSessi
 @base_router.message(F.text == "🙍🏻‍♂️Мой профиль")
 async def my_profile(message: Message, session: AsyncSession):
     user = await get_full_user_info(session, message.from_user.id)
-    if user:
-        await message.answer_photo(user.photo, caption=f'🎴{user["name"]}, {user["age"]}, {user["uni_city"]}\n🏛<b>{user["uni_name"]}</b>\n🔍<b>{user["target"]}</b>\n\n{user["description"]}\n\n🔄 - Заполнить анкету заново\n📝 - Изменить описание\n🖼 - Изменить фото', reply_markup=profile_kb)
+    sub = await get_subscription_by_user_id(session, message.from_user.id)
+    if user and sub:
+        finish_date = sub.finish_date
+        await message.answer_photo(user.photo, caption=f'🎴{user["name"]}, {user["age"]}, {user["uni_city"]}\n🏛<b>{user["uni_name"]}</b>\n🔍<b>{user["target_desc"]}</b>\n🌐Статус аккаунта - <b>Premium (до {finish_date})</b>\n\n{user["description"]}\n\n🔄 - Заполнить анкету заново\n📝 - Изменить описание\n🖼 - Изменить фото', reply_markup=profile_kb)
+    elif user:
+        await message.answer_photo(user.photo, caption=f'🎴{user["name"]}, {user["age"]}, {user["uni_city"]}\n🏛<b>{user["uni_name"]}</b>\n🔍<b>{user["target_desc"]}</b>\n🌐Статус аккаунта - <b>Обычный</b>\n\n{user["description"]}\n\n🔄 - Заполнить анкету заново\n📝 - Изменить описание\n🖼 - Изменить фото', reply_markup=profile_kb)
     else:
         await message.answer("Вы ещё не заполнили анкету", reply_markup=register_kb)
         

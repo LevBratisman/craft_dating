@@ -37,7 +37,7 @@ exit_from_liked_kb = get_keyboard(
 
 
 
-@like_router.message(F.text.contains("💛Кто меня лайкнул?"))
+@like_router.message(F.text.contains("💛Лайки"))
 async def show_liked_users(message: Message, session: AsyncSession):
     liked_users_iter = await get_like_iterator(session, message.from_user.id)
     user_like_stats = await get_like(session, message.from_user.id)

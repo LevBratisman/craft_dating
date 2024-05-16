@@ -1,4 +1,4 @@
-from sqlalchemy import DateTime, String, ForeignKey, func
+from sqlalchemy import DateTime, String, ForeignKey, func, Date
 from sqlalchemy.orm import Mapped, mapped_column, relationship, DeclarativeBase
 
 
@@ -30,6 +30,7 @@ class User(Base):
     age: Mapped[int] = mapped_column(nullable=False)
     city: Mapped[str] = mapped_column(String(150), nullable=False)
     photo: Mapped[str] = mapped_column(String(150), nullable=False)
+    target: Mapped[int] = mapped_column(nullable=False)
     description: Mapped[str] = mapped_column(nullable=True)
     iterator: Mapped[int] = mapped_column(nullable=True, default=0)
     like_iterator: Mapped[int] = mapped_column(nullable=True, default=0)
@@ -39,6 +40,14 @@ class User(Base):
     
     uni: Mapped['Uni'] = relationship(backref='user')
 
+
+class Subscription(Base):
+    __tablename__ = 'subscription'
+    
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    user_id: Mapped[int] = mapped_column()
+    finish_date: Mapped[DateTime] = mapped_column(DateTime)
+    subscription_type: Mapped[str] = mapped_column()
     
     
 

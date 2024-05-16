@@ -21,6 +21,7 @@ from handlers.project.fill import project_fill_router
 from handlers.project.base import base_project_router
 from handlers.project.requests import requests_router
 from handlers.project.search import search_project_router
+from handlers.premium import premium_router
 
 from common.cmd_list import private
 
@@ -67,6 +68,7 @@ dp.include_router(cmd_router)
 dp.include_router(base_project_router)
 dp.include_router(fill_router)
 dp.include_router(admin_router)
+dp.include_router(premium_router)
 dp.include_router(adbot_router)
 dp.include_router(profile_router)
 dp.include_router(search_settings_router)
@@ -92,7 +94,7 @@ if __name__ == "__main__":
         # asyncio.run(main())
     except KeyboardInterrupt:
         print("error")
-        #https://api.telegram.org/bot6727500986:AAE5xqYxeyOwV7jNPOJDPzT1_l4Dd4bOjY4/setWebhook?url=https://6a29-2001-ac8-31-1787-e82f-4679-18cc-7.ngrok-free.app
+        #https://api.telegram.org/bot6727500986:AAE5xqYxeyOwV7jNPOJDPzT1_l4Dd4bOjY4/setWebhook?url=https://12a3-2001-ac8-31-812b-f1b4-de7e-5bdd-1f.ngrok-free.app
         #https://api.telegram.org/bot6727500986:AAE5xqYxeyOwV7jNPOJDPzT1_l4Dd4bOjY4/getWebhookInfo
         #/root/.cache/pypoetry/virtualenvs/bot-3nGdubw0-py3.11/bin/activate /home/bot/app/run.py
         

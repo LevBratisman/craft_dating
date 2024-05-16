@@ -8,8 +8,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.keyboards.inline import get_callback_btns
 from app.keyboards.reply import get_keyboard
 
+import datetime
+
 from app.database.dao.user import add_user, get_uni_id_by_user_id
 from app.database.dao.project import add_project, get_projects_by_user_id
+from app.database.dao.sub import delete_subscription, get_subscription_by_user_id
 
 from app.keyboards.reply import get_menu_keyboard
 
@@ -50,8 +53,24 @@ class ProjectInfo(StatesGroup):
 @project_fill_router.message(StateFilter(None), F.text == "Выложить проект")
 async def start_fill_project(message: Message, state: FSMContext, session: AsyncSession):
     current_projects = await get_projects_by_user_id(session, message.from_user.id)
-    if len(current_projects) == 1:
-        await message.answer("Для того чтобы публиковать более одного проекта купите подписку")
+    if len(current_projects) > 0 and len(current_projects) < 5:
+        sub = await get_subscription_by_user_id(session, message.from_user.id)
+        
+        if sub:
+            if sub.finish_date > datetime.datetime.now():
+                await state.set_state(ProjectInfo.project_name)
+                await message.answer_sticker("CAACAgIAAxkBAAISQWZEfFQfwsYBLa88sfzVUqLox3VKAAKRAQACK15TC92mC_kqIE5PNQQ", reply_markup=ReplyKeyboardRemove())
+                await message.answer("Введите название проекта")
+            else:
+                await delete_subscription(session, message.from_user.id)
+                await message.answer("Для публикации нескольких проектов активируйте Premium💎")
+                return
+        else:
+            await message.answer("Для публикации нескольких проектов активируйте Premium💎")
+            return
+
+    if len(current_projects) >= 5:
+        await message.answer("Вы уже опубликовали максимальное количество проектов")
         return
     else:
         await state.set_state(ProjectInfo.project_name)
