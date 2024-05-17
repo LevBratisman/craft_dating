@@ -5,6 +5,7 @@ class Settings(BaseSettings):
     
     BOT_TOKEN: str
     ADMIN_ID: int
+    PAYMENT_TOKEN: str
         
     # DB_URL: str
 

@@ -45,15 +45,7 @@ async def admin_panel(message: Message):
     
 @admin_router.message(F.text == "⬅️Назад к меню")
 async def admin_back(message: Message):
-    await message.answer("Вы вернулись в главное меню", reply_markup=await get_menu_keyboard(
-            "🔍Искать людей",
-            "💕Кто меня лайкнул?",
-            "🙎‍♂️Мой профиль",
-            "⚙️Параметры поиска",
-            placeholder="Выберите действие",
-            sizes=(1, ),
-            user_id=message.from_user.id
-        ))
+    await message.answer("Вы вернулись в главное меню", reply_markup=await get_menu_keyboard(user_id=message.from_user.id))
     
     
 @admin_router.message(F.text == "⬅️Назад к Админ-панели")

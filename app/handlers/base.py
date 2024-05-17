@@ -52,7 +52,7 @@ async def start(message: Message, state: FSMContext, session: AsyncSession):
     # await delete_user(session, message.from_user.id)
     await state.set_state(Start.is_auth)
     await message.answer_sticker("CAACAgIAAxkBAAISCmY5JbkIzcX3LSJnp4z5ULUt7PA3AAKLAQACK15TC6NhvGkkNINQNQQ")
-    await message.answer(f"Хочешь найти друзей или вторую половинку со своего университета?💫\n\n", 
+    await message.answer(f"Хочешь найти друзей, вторую половинку или команду для своего проекта?💫\n\n", 
                          reply_markup=get_keyboard("Разумеется🔥", "Хотелось бы⭐️"))
     
     for uni in uni_data:
@@ -81,7 +81,8 @@ async def my_profile(message: Message, session: AsyncSession):
     user = await get_full_user_info(session, message.from_user.id)
     sub = await get_subscription_by_user_id(session, message.from_user.id)
     if user and sub:
-        finish_date = sub.finish_date
+        finish_date = sub.finish_date.date()
+        finish_date = datetime.datetime.strftime(finish_date, "%d.%m.%Y")
         await message.answer_photo(user.photo, caption=f'🎴{user["name"]}, {user["age"]}, {user["uni_city"]}\n🏛<b>{user["uni_name"]}</b>\n🔍<b>{user["target_desc"]}</b>\n🌐Статус аккаунта - <b>Premium (до {finish_date})</b>\n\n{user["description"]}\n\n🔄 - Заполнить анкету заново\n📝 - Изменить описание\n🖼 - Изменить фото', reply_markup=profile_kb)
     elif user:
         await message.answer_photo(user.photo, caption=f'🎴{user["name"]}, {user["age"]}, {user["uni_city"]}\n🏛<b>{user["uni_name"]}</b>\n🔍<b>{user["target_desc"]}</b>\n🌐Статус аккаунта - <b>Обычный</b>\n\n{user["description"]}\n\n🔄 - Заполнить анкету заново\n📝 - Изменить описание\n🖼 - Изменить фото', reply_markup=profile_kb)

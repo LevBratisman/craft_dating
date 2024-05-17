@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database.dao.user import get_user_by_user_id, update_user_description, update_user_photo, get_full_user_info
 from app.database.dao.uni import get_uni_by_id
+from app.database.dao.sub import get_subscription_by_user_id
 
 from app.keyboards.reply import get_keyboard
 from app.keyboards.inline import get_callback_btns
@@ -15,6 +16,8 @@ from app.handlers.fill import start_auth
 from app.handlers.base import profile_kb, my_profile
 
 from tests.test_data import data
+
+import datetime
 
 
 profile_router = Router()
@@ -82,9 +85,16 @@ async def desc_confirmation(callback: CallbackQuery, state: FSMContext, session:
         await update_user_description(session, data["user_id"], data["description"])
         
     user = await get_full_user_info(session, data["user_id"])
+    sub = await get_subscription_by_user_id(session, data["user_id"])
     await state.clear()
     await callback.message.delete()
-    await callback.message.answer_photo(photo=user.photo, caption=f'🎴{user["name"]}, {user["age"]}, {user["uni_city"]}\n<b>🏛{user["uni_name"]}</b>\n🔍<b>{user["target_desc"]}</b>\n\n{user["description"]}\n\n🔄 - Заполнить анкету заново\n📝 - Изменить описание\n🖼 - Изменить фото', reply_markup=profile_kb)
+    
+    if user and sub:
+        finish_date = sub.finish_date.date()
+        finish_date = datetime.datetime.strftime(finish_date, "%d.%m.%Y")
+        await callback.message.answer_photo(user.photo, caption=f'🎴{user["name"]}, {user["age"]}, {user["uni_city"]}\n🏛<b>{user["uni_name"]}</b>\n🔍<b>{user["target_desc"]}</b>\n🌐Статус аккаунта - <b>Premium (до {finish_date})</b>\n\n{user["description"]}\n\n🔄 - Заполнить анкету заново\n📝 - Изменить описание\n🖼 - Изменить фото', reply_markup=profile_kb)
+    elif user:
+        await callback.message.answer_photo(user.photo, caption=f'🎴{user["name"]}, {user["age"]}, {user["uni_city"]}\n🏛<b>{user["uni_name"]}</b>\n🔍<b>{user["target_desc"]}</b>\n🌐Статус аккаунта - <b>Обычный</b>\n\n{user["description"]}\n\n🔄 - Заполнить анкету заново\n📝 - Изменить описание\n🖼 - Изменить фото', reply_markup=profile_kb)
     
     
 # -------------------------------- PHOTO FSM -----------------------------
@@ -119,9 +129,16 @@ async def photo_confirmation(callback: CallbackQuery, state: FSMContext, session
         await update_user_photo(session, data["user_id"], data["photo"])
         
     user = await get_full_user_info(session, data["user_id"])
+    sub = await get_subscription_by_user_id(session, data["user_id"])
     await state.clear()
     await callback.message.delete()
-    await callback.message.answer_photo(photo=user.photo, caption=f'🎴{user["name"]}, {user["age"]}, {user["uni_city"]}\n<b>🏛{user["uni_name"]}</b>\n🔍<b>{user["target_desc"]}</b>\n\n{user["description"]}\n\n🔄 - Заполнить анкету заново\n📝 - Изменить описание\n🖼 - Изменить фото', reply_markup=profile_kb)
+    
+    if user and sub:
+        finish_date = sub.finish_date.date()
+        finish_date = datetime.datetime.strftime(finish_date, "%d.%m.%Y")
+        await callback.message.answer_photo(user.photo, caption=f'🎴{user["name"]}, {user["age"]}, {user["uni_city"]}\n🏛<b>{user["uni_name"]}</b>\n🔍<b>{user["target_desc"]}</b>\n🌐Статус аккаунта - <b>Premium (до {finish_date})</b>\n\n{user["description"]}\n\n🔄 - Заполнить анкету заново\n📝 - Изменить описание\n🖼 - Изменить фото', reply_markup=profile_kb)
+    elif user:
+        await callback.message.answer_photo(user.photo, caption=f'🎴{user["name"]}, {user["age"]}, {user["uni_city"]}\n🏛<b>{user["uni_name"]}</b>\n🔍<b>{user["target_desc"]}</b>\n🌐Статус аккаунта - <b>Обычный</b>\n\n{user["description"]}\n\n🔄 - Заполнить анкету заново\n📝 - Изменить описание\n🖼 - Изменить фото', reply_markup=profile_kb)
 
 
 # -------------------------------------------------------------

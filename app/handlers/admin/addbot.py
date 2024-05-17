@@ -162,14 +162,16 @@ async def get_description(message: Message, state: FSMContext, session: AsyncSes
         "city": uni.city,
         "uni_id": data["uni"],
         "photo": data["photo"],
+        "target": data["target"],
         "description": data["description"],
         "iterator": 0,
-        "like_iterator": 0
+        "like_iterator": 0,
+        "project_iterator": 0
     }
     
     data_filter = {
         "user_id": data["user_id"],
-        "target": data["target"],
+        "target": None,
         "sex_target": data["sex_target"],
         "uni_id": data["uni"],
     }

@@ -69,7 +69,7 @@ async def start_fill_project(message: Message, state: FSMContext, session: Async
             await message.answer("Для публикации нескольких проектов активируйте Premium💎")
             return
 
-    if len(current_projects) >= 5:
+    elif len(current_projects) >= 5:
         await message.answer("Вы уже опубликовали максимальное количество проектов")
         return
     else:

@@ -1,6 +1,8 @@
 from aiogram import F, Router, Bot
 from aiogram.types import Message
 from aiogram.filters import StateFilter, Filter
+from aiogram.fsm.state import State, StatesGroup
+from aiogram.fsm.context import FSMContext
 from sqlalchemy.ext.asyncio import AsyncSession
 import asyncio
 
@@ -23,7 +25,6 @@ search_router = Router()
 
 search_kb = get_keyboard(
     "❤️",
-    "💌",
     "👎",
     "🚪",
     placeholder="Выберите действие",
@@ -43,6 +44,7 @@ is_like_check_kb = get_keyboard(
 )
 
 
+
 @search_router.message(StateFilter(None), F.text == "🔍Искать людей")
 async def start_search(message: Message, session: AsyncSession):
     
@@ -58,11 +60,11 @@ async def start_search(message: Message, session: AsyncSession):
             try:
                 await set_iterator(session, message.from_user.id, iter + 1)
                 iter += 1
-                await message.answer_photo(target_users[iter].photo, caption=f'🎴{target_users[iter].name}, {target_users[iter].age}, {target_users[iter].city}\n🏛<b>{target_users[iter].uni_name}</b>\n🔍<b>{target_users[iter].target}</b>\n\n{target_users[iter].description}', reply_markup=search_kb)
+                await message.answer_photo(target_users[iter].photo, caption=f'🎴{target_users[iter].name}, {target_users[iter].age}, {target_users[iter].city}\n🏛<b>{target_users[iter].uni_name}</b>\n🔍<b>{target_users[iter].target_desc}</b>\n\n{target_users[iter].description}', reply_markup=search_kb)
             except IndexError:
                 await set_iterator(session, message.from_user.id, 0)
                 iter = 0
-                await message.answer_photo(target_users[iter].photo, caption=f'🎴{target_users[iter].name}, {target_users[iter].age}, {target_users[iter].city}\n🏛<b>{target_users[iter].uni_name}</b>\n🔍<b>{target_users[iter].target}</b>\n\n{target_users[iter].description}', reply_markup=search_kb)
+                await message.answer_photo(target_users[iter].photo, caption=f'🎴{target_users[iter].name}, {target_users[iter].age}, {target_users[iter].city}\n🏛<b>{target_users[iter].uni_name}</b>\n🔍<b>{target_users[iter].target_desc}</b>\n\n{target_users[iter].description}', reply_markup=search_kb)
         else:
             await message.answer("По вашему запросу ничего не найдено")
         
@@ -126,19 +128,19 @@ async def next_user(message: Message, session: AsyncSession, bot: Bot):
         else:
             iter += 1
         await set_iterator(session, message.from_user.id, iter)
-        await message.answer_photo(target_users[iter].photo, caption=f'🎴{target_users[iter].name}, {target_users[iter].age}, {target_users[iter].city}\n🏛<b>{target_users[iter].uni_name}</b>\n🔍<b>{target_users[iter].target}</b>\n\n{target_users[iter].description}', reply_markup=search_kb)
+        await message.answer_photo(target_users[iter].photo, caption=f'🎴{target_users[iter].name}, {target_users[iter].age}, {target_users[iter].city}\n🏛<b>{target_users[iter].uni_name}</b>\n🔍<b>{target_users[iter].target_desc}</b>\n\n{target_users[iter].description}', reply_markup=search_kb)
     except IndexError:
         await set_iterator(session, message.from_user.id, 0)
         iter = 0
-        await message.answer_photo(target_users[iter].photo, caption=f'🎴{target_users[iter].name}, {target_users[iter].age}, {target_users[iter].city}\n🏛<b>{target_users[iter].uni_name}</b>\n🔍<b>{target_users[iter].target}</b>\n\n{target_users[iter].description}', reply_markup=search_kb) 
+        await message.answer_photo(target_users[iter].photo, caption=f'🎴{target_users[iter].name}, {target_users[iter].age}, {target_users[iter].city}\n🏛<b>{target_users[iter].uni_name}</b>\n🔍<b>{target_users[iter].target_desc}</b>\n\n{target_users[iter].description}', reply_markup=search_kb) 
     
     
 
-@search_router.message(IsPremium(), F.text == "💌")
-async def send_request(message: Message, session: AsyncSession):
-    await message.answer("В разработке")
+# @search_router.message(IsPremium(), F.text == "💌")
+# async def send_request(message: Message, session: AsyncSession, state: FSMContext):
+#     await message.answer("В разработке")
     
     
-@search_router.message(F.text == "💌")
-async def reject_request(message: Message, session: AsyncSession):
-    await message.answer("Вам необходимо оформить Premium")
+# @search_router.message(F.text == "💌")
+# async def reject_request(message: Message, session: AsyncSession):
+#     await message.answer("Вам необходимо оформить Premium")

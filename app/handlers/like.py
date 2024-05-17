@@ -48,7 +48,7 @@ async def show_liked_users(message: Message, session: AsyncSession):
         return
     liked_user = await get_full_user_info(session, int(liked_users_id[liked_users_iter]))
     
-    await message.answer_photo(liked_user["photo"], caption=f'Вы заинтересовали:\n\n🎴{liked_user["name"]}, {liked_user["age"]}, {liked_user["uni_city"]}\n🏛<b>{liked_user["uni_name"]}</b>\n🔍<b>{liked_user["target"]}</b>\n\n{liked_user.description}', reply_markup=is_like_kb)
+    await message.answer_photo(liked_user["photo"], caption=f'Вы заинтересовали:\n\n🎴{liked_user["name"]}, {liked_user["age"]}, {liked_user["uni_city"]}\n🏛<b>{liked_user["uni_name"]}</b>\n🔍<b>{liked_user["target_desc"]}</b>\n\n{liked_user.description}', reply_markup=is_like_kb)
     
     
     
@@ -73,7 +73,7 @@ async def like(message: Message, session: AsyncSession, bot: Bot):
         await message.answer(f"Приятного общения c @{liked_user.username}!")
         await bot.send_photo(chat_id=liked_user.user_id, 
                             photo=user.photo, 
-                            caption=f'Взаимный интерес! Приятного общения c @{user.username}\n\n🎴{user["name"]}, {user["age"]}, {user["uni_city"]}\n🏛<b>{user["uni_name"]}</b>\n🔍<b>{user["target"]}</b>\n\n{user["description"]}', 
+                            caption=f'Взаимный интерес! Приятного общения c @{user.username}\n\n🎴{user["name"]}, {user["age"]}, {user["uni_city"]}\n🏛<b>{user["uni_name"]}</b>\n🔍<b>{user["target_desc"]}</b>\n\n{user["description"]}', 
                             reply_markup=exit_from_liked_kb)
     
     if liked_users_iter == len(liked_users) - 1:
@@ -84,7 +84,7 @@ async def like(message: Message, session: AsyncSession, bot: Bot):
         liked_users_iter += 1
         await set_like_iterator(session, message.from_user.id, liked_users_iter)
         liked_user = await get_full_user_info(session, liked_users[liked_users_iter])
-        await message.answer_photo(liked_user["photo"], caption=f'Вы заинтересовали:\n\n🎴{liked_user["name"]}, {liked_user["age"]}, {liked_user["uni_city"]}\n🏛{liked_user["uni_name"]}\n🔍<b>{user["target"]}</b>\n\n{liked_user["description"]}', reply_markup=is_like_kb)
+        await message.answer_photo(liked_user["photo"], caption=f'Вы заинтересовали:\n\n🎴{liked_user["name"]}, {liked_user["age"]}, {liked_user["uni_city"]}\n🏛{liked_user["uni_name"]}\n🔍<b>{user["target_desc"]}</b>\n\n{liked_user["description"]}', reply_markup=is_like_kb)
         
     
 

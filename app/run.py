@@ -29,6 +29,7 @@ from common.cmd_list import private
 from database.init import create_db, drop_db
 
 from middlewares.db import DataBaseSession
+from middlewares.is_premium import IsPremiumCheck
 from database.init import async_session_maker
 
 #########################################################
@@ -46,6 +47,7 @@ async def lifespan(app):
     dp.shutdown.register(on_shutdown)
     await bot.set_my_commands(private)
     dp.update.middleware(DataBaseSession(session_pool=async_session_maker))
+    dp.message.middleware(IsPremiumCheck())
     await bot.delete_webhook(drop_pending_updates=True)
     yield
     
@@ -94,7 +96,7 @@ if __name__ == "__main__":
         # asyncio.run(main())
     except KeyboardInterrupt:
         print("error")
-        #https://api.telegram.org/bot6727500986:AAE5xqYxeyOwV7jNPOJDPzT1_l4Dd4bOjY4/setWebhook?url=https://12a3-2001-ac8-31-812b-f1b4-de7e-5bdd-1f.ngrok-free.app
+        #https://api.telegram.org/bot6727500986:AAE5xqYxeyOwV7jNPOJDPzT1_l4Dd4bOjY4/setWebhook?url=https://ab09-2001-ac8-31-3f09-42c5-80fb-823e-9.ngrok-free.app
         #https://api.telegram.org/bot6727500986:AAE5xqYxeyOwV7jNPOJDPzT1_l4Dd4bOjY4/getWebhookInfo
         #/root/.cache/pypoetry/virtualenvs/bot-3nGdubw0-py3.11/bin/activate /home/bot/app/run.py
         

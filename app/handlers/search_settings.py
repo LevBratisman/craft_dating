@@ -59,7 +59,7 @@ search_settings_kb = get_keyboard(
 async def search_settings_menu(message: Message, session: AsyncSession):
     
     user_info = await get_full_user_info(session, message.from_user.id)
-    await message.answer(f'Ваши настройки:\n\n<i>Цель</i>: <b>{user_info["target"]}</b>\n<i>ВУЗ</i>: <b>{user_info["uni_name"]}</b>\n<i>Кого ищу (пол)</i>: <b>{user_info["sex_target"]}</b>\n\n1. Изменить цель (Premium)\n2. Изменить ВУЗ\n3. Изменить пол', 
+    await message.answer(f'Ваши настройки:\n\n<i>Цель</i>: <b>{user_info["target"]}</b>\n<i>ВУЗ</i>: <b>{user_info["uni_name"]}</b>\n<i>Кого ищу (пол)</i>: <b>{user_info["sex_target"]}</b>\n\n1. Изменить цель (💎Premium)\n2. Изменить ВУЗ\n3. Изменить пол', 
                          reply_markup=search_settings_kb)
     
     
@@ -110,7 +110,7 @@ async def target_confirmation(callback: CallbackQuery, state: FSMContext, sessio
     await callback.message.delete()
     
     user_info = await get_full_user_info(session, data["user_id"])
-    await callback.message.answer(f'Ваши настройки:\n\n<i>Цель</i>: <b>{user_info["target"]}</b>\n<i>ВУЗ</i>: <b>{user_info["uni_name"]}</b>\n<i>Кого ищу (пол)</i>: <b>{user_info["sex_target"]}</b>\n\n1. Изменить цель\n2. Изменить ВУЗ\n3. Изменить пол', 
+    await callback.message.answer(f'Ваши настройки:\n\n<i>Цель</i>: <b>{user_info["target"]}</b>\n<i>ВУЗ</i>: <b>{user_info["uni_name"]}</b>\n<i>Кого ищу (пол)</i>: <b>{user_info["sex_target"]}</b>\n\n1. Изменить цель (💎Premium)\n2. Изменить ВУЗ\n3. Изменить пол', 
                          reply_markup=search_settings_kb)
     
     
@@ -152,7 +152,7 @@ async def city_confirmation(callback: CallbackQuery, state: FSMContext, session:
     await callback.message.delete()
     
     user_info = await get_full_user_info(session, data["user_id"])
-    await callback.message.answer(f'Ваши настройки:\n\n<i>Цель</i>: <b>{user_info["target"]}</b>\n<i>ВУЗ</i>: <b>{user_info["uni_name"]}</b>\n<i>Кого ищу (пол)</i>: <b>{user_info["sex_target"]}</b>\n\n1. Изменить цель\n2. Изменить ВУЗ\n3. Изменить пол', 
+    await callback.message.answer(f'Ваши настройки:\n\n<i>Цель</i>: <b>{user_info["target"]}</b>\n<i>ВУЗ</i>: <b>{user_info["uni_name"]}</b>\n<i>Кого ищу (пол)</i>: <b>{user_info["sex_target"]}</b>\n\n1. Изменить цель (💎Premium)\n2. Изменить ВУЗ\n3. Изменить пол', 
                          reply_markup=search_settings_kb)
 
 
@@ -192,6 +192,6 @@ async def sex_target_confirmation(callback: CallbackQuery, state: FSMContext, se
     await callback.message.delete()
         
     user_info = await get_full_user_info(session, data["user_id"])
-    await callback.message.answer(f'Ваши настройки:\n\n<i>Цель</i>: <b>{user_info["target"]}</b>\n<i>ВУЗ</i>: <b>{user_info["uni_name"]}</b>\n<i>Кого ищу (пол)</i>: <b>{user_info["sex_target"]}</b>\n\n1. Изменить цель\n2. Изменить ВУЗ\n3. Изменить пол', 
+    await callback.message.answer(f'Ваши настройки:\n\n<i>Цель</i>: <b>{user_info["target"]}</b>\n<i>ВУЗ</i>: <b>{user_info["uni_name"]}</b>\n<i>Кого ищу (пол)</i>: <b>{user_info["sex_target"]}</b>\n\n1. Изменить цель (💎Premium)\n2. Изменить ВУЗ\n3. Изменить пол', 
                          reply_markup=search_settings_kb)
     

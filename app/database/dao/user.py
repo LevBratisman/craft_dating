@@ -64,31 +64,57 @@ async def get_users_by_filter(session: AsyncSession, params: dict):
         User.sex,
         User.photo, 
         User.description,
+        User.target.label('target_desc'),
         Filter.sex_target,
         Filter.target,
         Uni.name.label('uni_name'),
         Uni.city,
     ).join(Filter, Filter.user_id == User.user_id).join(Uni, Uni.id == User.uni_id).subquery()
+    
+    print(params["target"])
         
     if params["sex_target"] == "Все равно":
-        query = select(User_Filter_view).where(and_(
-            User_Filter_view.c.user_id != params["user_id"],
-            User_Filter_view.c.uni_id == params["uni_id"],
-            or_(
-                User_Filter_view.c.sex_target == params["sex"],
-                User_Filter_view.c.sex_target == "Все равно"
-            )
-        ))
+        if not params["target"]:
+            query = select(User_Filter_view).where(and_(
+                User_Filter_view.c.user_id != params["user_id"],
+                User_Filter_view.c.uni_id == params["uni_id"],
+                or_(
+                    User_Filter_view.c.sex_target == params["sex"],
+                    User_Filter_view.c.sex_target == "Все равно"
+                )
+            ))
+        if params["target"]:
+            query = select(User_Filter_view).where(and_(
+                User_Filter_view.c.user_id != params["user_id"],
+                User_Filter_view.c.uni_id == params["uni_id"],
+                User_Filter_view.c.target_desc == params["target"],
+                or_(
+                    User_Filter_view.c.sex_target == params["sex"],
+                    User_Filter_view.c.sex_target == "Все равно"
+                )
+            ))
     else:
-        query = select(User_Filter_view).where(and_(
-            User_Filter_view.c.user_id != params["user_id"],
-            User_Filter_view.c.uni_id == params["uni_id"],
-            User_Filter_view.c.sex == params["sex_target"],
-            or_(
-                User_Filter_view.c.sex_target == params["sex"],
-                User_Filter_view.c.sex_target == "Все равно"
-            )
-        ))
+        if not params["target"]:
+            query = select(User_Filter_view).where(and_(
+                User_Filter_view.c.user_id != params["user_id"],
+                User_Filter_view.c.uni_id == params["uni_id"],
+                User_Filter_view.c.sex == params["sex_target"],
+                or_(
+                    User_Filter_view.c.sex_target == params["sex"],
+                    User_Filter_view.c.sex_target == "Все равно"
+                )
+            ))
+        if params["target"]:
+            query = select(User_Filter_view).where(and_(
+                User_Filter_view.c.user_id != params["user_id"],
+                User_Filter_view.c.uni_id == params["uni_id"],
+                User_Filter_view.c.target_desc == params["target"],
+                User_Filter_view.c.sex == params["sex_target"],
+                or_(
+                    User_Filter_view.c.sex_target == params["sex"],
+                    User_Filter_view.c.sex_target == "Все равно"
+                )
+            ))
 
         
     result = await session.execute(query)
